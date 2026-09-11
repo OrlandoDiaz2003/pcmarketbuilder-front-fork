@@ -1,0 +1,61 @@
+<a class="back" routerLink="/">&larr; Volver al catálogo</a>
+
+@if (loading()) {
+  <p>Cargando...</p>
+} @else if (error()) {
+  <p class="error">{{ error() }}</p>
+} @else if (listing(); as item) {
+  <article class="detail">
+    <div class="gallery">
+      @if (item.images.length > 0) {
+        @for (image of item.images; track image.imageId) {
+          <img [src]="image.imageUrl" [alt]="item.title" [class.primary]="image.isPrimary" />
+        }
+      } @else {
+        <div class="thumb-placeholder">Sin imágenes</div>
+      }
+    </div>
+
+    <div class="info">
+      <h1>{{ item.title }}</h1>
+      <p class="price">{{ item.price | number: '1.0-0' }}</p>
+      <p class="status">{{ item.status }} · {{ item.grade }}</p>
+
+      @if (cart.has(item.publicationId)) {
+        <button type="button" class="in-cart" disabled>En el carrito ✓</button>
+      } @else {
+        <button type="button" class="add-cart" (click)="addToCart()">Agregar al carrito</button>
+      }
+
+      @if (item.description) {
+        <p class="description">{{ item.description }}</p>
+      }
+
+      @if (item.product; as product) {
+        <section class="specs">
+          <h2>Especificaciones</h2>
+          <ul>
+            <li>Marca: {{ product.brand }}</li>
+            <li>Modelo: {{ product.model }}</li>
+            @if (product.socket) {
+              <li>Socket: {{ product.socket }}</li>
+            }
+            @if (product.ramType) {
+              <li>Tipo de RAM: {{ product.ramType }}</li>
+            }
+          </ul>
+        </section>
+      }
+
+      @if (item.seller; as seller) {
+        <section class="seller">
+          <h2>Vendedor</h2>
+          <p>{{ seller.username }}</p>
+          @if (seller.bio) {
+            <p class="bio">{{ seller.bio }}</p>
+          }
+        </section>
+      }
+    </div>
+  </article>
+}

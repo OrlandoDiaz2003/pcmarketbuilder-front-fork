@@ -1,0 +1,32 @@
+<h1>Mi carrito</h1>
+
+@if (cart.count() === 0) {
+  <p>Tu carrito está vacío. <a routerLink="/">Ver catálogo</a>.</p>
+} @else {
+  <ul class="cart-list">
+    @for (item of cart.items(); track item.publicationId) {
+      <li class="cart-item">
+        <div class="thumb">
+          @if (item.primaryImage) {
+            <img [src]="item.primaryImage" [alt]="item.title" />
+          } @else {
+            <span class="thumb-placeholder">Sin imagen</span>
+          }
+        </div>
+        <div class="info">
+          <a class="title" [routerLink]="['/listings', item.publicationId]">{{ item.title }}</a>
+          <p class="seller">Vendido por: <strong>{{ item.sellerUsername }}</strong></p>
+        </div>
+        <p class="price">{{ item.price | number: '1.0-0' }}</p>
+        <button type="button" class="remove" (click)="cart.remove(item.publicationId)">Quitar</button>
+      </li>
+    }
+  </ul>
+
+  <div class="summary">
+    <span class="total">Total: {{ cart.total() | number: '1.0-0' }}</span>
+    <button type="button" class="checkout" disabled title="El checkout todavía no está disponible">
+      Finalizar compra (próximamente)
+    </button>
+  </div>
+}

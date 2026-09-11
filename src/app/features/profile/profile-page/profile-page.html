@@ -1,0 +1,49 @@
+@if (loading()) {
+  <p>Cargando tu perfil...</p>
+} @else if (error()) {
+  <p class="error">{{ error() }}</p>
+} @else if (user(); as u) {
+  <h1>Mi perfil</h1>
+  <dl class="readonly">
+    <dt>Usuario</dt>
+    <dd>{{ u.username }}</dd>
+    <dt>Email</dt>
+    <dd>{{ u.email }}</dd>
+    <dt>Rol</dt>
+    <dd>{{ u.role }}</dd>
+  </dl>
+
+  <div class="stats">
+    <div class="stat">
+      <span class="value">{{ publicationsLoading() ? '…' : (publicationsCount() ?? 0) }}</span>
+      <span class="label">Publicaciones hechas</span>
+    </div>
+    <div class="stat">
+      <span class="value">—</span>
+      <span class="label">Calificación (próximamente)</span>
+    </div>
+  </div>
+
+  <form (ngSubmit)="save()">
+    <label>
+      Nombre completo
+      <input type="text" name="fullName" [(ngModel)]="form.fullName" />
+    </label>
+    <label>
+      Bio
+      <textarea name="bio" rows="3" [(ngModel)]="form.bio"></textarea>
+    </label>
+    <label>
+      Dirección
+      <input type="text" name="address" [(ngModel)]="form.address" />
+    </label>
+
+    <button type="submit" [disabled]="saving()">
+      {{ saving() ? 'Guardando...' : 'Guardar cambios' }}
+    </button>
+
+    @if (saved()) {
+      <span class="saved">Guardado ✓</span>
+    }
+  </form>
+}

@@ -1,0 +1,28 @@
+<nav class="navbar">
+  <a class="brand" routerLink="/">PC Builder Market</a>
+
+  <div class="links">
+    <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Catálogo</a>
+    @if (auth.isAuthenticated) {
+      <a routerLink="/profile" routerLinkActive="active">Mi perfil</a>
+    }
+  </div>
+
+  <div class="session">
+    <a class="sell-button" routerLink="/sell/new" routerLinkActive="active">+ Crear publicación</a>
+
+    <a class="cart-button" routerLink="/cart" routerLinkActive="active" aria-label="Carrito">
+      🛒
+      @if (cart.count() > 0) {
+        <span class="cart-badge">{{ cart.count() }}</span>
+      }
+    </a>
+
+    @if (auth.isAuthenticated) {
+      <span class="user">{{ auth.displayName }}</span>
+      <button type="button" (click)="logout()">Cerrar sesión</button>
+    } @else {
+      <button type="button" (click)="login()">Iniciar sesión</button>
+    }
+  </div>
+</nav>

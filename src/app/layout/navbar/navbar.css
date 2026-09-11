@@ -1,0 +1,102 @@
+.navbar {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 0.75rem 1.5rem;
+  border-bottom: 1px solid #2a2a2a;
+  background: #141414;
+  color: #eee;
+}
+
+.brand {
+  font-weight: 700;
+  color: #fff;
+  text-decoration: none;
+}
+
+.links {
+  display: flex;
+  gap: 1rem;
+  flex: 1;
+}
+
+.links a {
+  color: #bbb;
+  text-decoration: none;
+}
+
+.links a.active,
+.links a:hover {
+  color: #fff;
+}
+
+.session {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.session .user {
+  color: #ccc;
+  font-size: 0.9rem;
+}
+
+.sell-button {
+  display: inline-flex;
+  align-items: center;
+  color: #fff;
+  background: #16a34a;
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-radius: 6px;
+  padding: 0.4rem 0.9rem;
+  white-space: nowrap;
+}
+
+.sell-button:hover,
+.sell-button.active {
+  background: #15803d;
+}
+
+.cart-button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 6px;
+  text-decoration: none;
+  font-size: 1.1rem;
+}
+
+.cart-button:hover,
+.cart-button.active {
+  background: #222;
+}
+
+.cart-badge {
+  position: absolute;
+  top: -4px;
+  right: -6px;
+  background: #dc2626;
+  color: #fff;
+  font-size: 0.65rem;
+  line-height: 1;
+  padding: 0.2rem 0.35rem;
+  border-radius: 999px;
+}
+
+.session button {
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.4rem 0.9rem;
+  cursor: pointer;
+}
+
+.session button:hover {
+  background: #1d4ed8;
+}

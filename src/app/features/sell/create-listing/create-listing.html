@@ -1,0 +1,89 @@
+<h1>Crear publicación</h1>
+
+@if (error()) {
+  <p class="error">{{ error() }}</p>
+}
+
+<section class="step">
+  <h2>1. Elegí el producto</h2>
+
+  <div class="product-search">
+    <select [(ngModel)]="subcategoryId">
+      <option [ngValue]="undefined">Todas las subcategorías</option>
+      @for (category of categories(); track category.categoryId) {
+        @for (sub of category.subcategories; track sub.subcategoryId) {
+          <option [ngValue]="sub.subcategoryId">{{ category.name }} · {{ sub.name }}</option>
+        }
+      }
+    </select>
+    <input
+      type="text"
+      placeholder="Buscar por marca o modelo..."
+      [(ngModel)]="productQuery"
+      (keyup.enter)="searchProducts()"
+    />
+    <button type="button" (click)="searchProducts()">Buscar</button>
+  </div>
+
+  @if (searching()) {
+    <p>Buscando...</p>
+  } @else if (products().length > 0) {
+    <ul class="product-list">
+      @for (product of products(); track product.productId) {
+        <li
+          class="product-option"
+          [class.selected]="selectedProduct()?.productId === product.productId"
+          (click)="selectProduct(product)"
+        >
+          <strong>{{ product.brand }} {{ product.model }}</strong>
+          <span>{{ product.subcategory.name }}</span>
+          @if (product.socket) {
+            <span>Socket: {{ product.socket }}</span>
+          }
+        </li>
+      }
+    </ul>
+  }
+
+  @if (selectedProduct(); as product) {
+    <p class="picked">Elegiste: <strong>{{ product.brand }} {{ product.model }}</strong></p>
+  }
+</section>
+
+<section class="step">
+  <h2>2. Detalles de la publicación</h2>
+
+  <form (ngSubmit)="submit()">
+    <label>
+      Título
+      <input type="text" name="title" required [(ngModel)]="form.title" />
+    </label>
+    <label>
+      Descripción
+      <textarea name="description" rows="3" [(ngModel)]="form.description"></textarea>
+    </label>
+    <label>
+      Precio
+      <input type="number" name="price" required min="0" [(ngModel)]="form.price" />
+    </label>
+    <label>
+      Estado (grade)
+      <select name="grade" [(ngModel)]="form.grade">
+        @for (grade of grades; track grade) {
+          <option [ngValue]="grade">{{ grade }}</option>
+        }
+      </select>
+    </label>
+    <label>
+      Meses de uso
+      <input type="number" name="usageTimeMonths" min="0" [(ngModel)]="form.usageTimeMonths" />
+    </label>
+
+    <button type="submit" [disabled]="submitting() || !selectedProduct()">
+      {{ submitting() ? 'Publicando...' : 'Publicar' }}
+    </button>
+    @if (!selectedProduct()) {
+      <p class="hint">⚠️ El botón está deshabilitado: primero buscá y elegí un producto en el paso 1.</p>
+    }
+  </form>
+</section>
