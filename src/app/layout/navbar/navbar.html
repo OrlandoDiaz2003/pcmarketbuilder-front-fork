@@ -1,28 +1,33 @@
-<nav class="navbar">
-  <a class="brand" routerLink="/">PC Builder Market</a>
+<header class="navbar">
+  <a class="logo" routerLink="/">
+    <i class="fa-solid fa-microchip"></i>
+    PC MARKET BUILDER
+  </a>
 
-  <div class="links">
+  <nav class="links">
     <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Catálogo</a>
     @if (auth.isAuthenticated) {
       <a routerLink="/profile" routerLinkActive="active">Mi perfil</a>
     }
-  </div>
+  </nav>
 
   <div class="session">
-    <a class="sell-button" routerLink="/sell/new" routerLinkActive="active">+ Crear publicación</a>
+    <a class="btn btn-outline" routerLink="/sell/new" routerLinkActive="active">
+      <i class="fa-solid fa-plus"></i> Publicar
+    </a>
 
     <a class="cart-button" routerLink="/cart" routerLinkActive="active" aria-label="Carrito">
-      🛒
+      <i class="fa-solid fa-cart-shopping"></i>
       @if (cart.count() > 0) {
         <span class="cart-badge">{{ cart.count() }}</span>
       }
     </a>
 
     @if (auth.isAuthenticated) {
-      <span class="user">{{ auth.displayName }}</span>
-      <button type="button" (click)="logout()">Cerrar sesión</button>
+      <span class="user"><i class="fa-solid fa-circle-user"></i> {{ auth.displayName }}</span>
+      <button type="button" class="btn btn-primary" (click)="logout()">Cerrar sesión</button>
     } @else {
-      <button type="button" (click)="login()">Iniciar sesión</button>
+      <button type="button" class="btn btn-primary" (click)="login()">Iniciar sesión</button>
     }
   </div>
-</nav>
+</header>

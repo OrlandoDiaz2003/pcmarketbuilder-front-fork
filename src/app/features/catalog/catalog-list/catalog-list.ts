@@ -5,6 +5,7 @@ import { RouterLink } from '@angular/router';
 import { CatalogApiService } from '../../../core/services/catalog-api.service';
 import { CartService } from '../../../core/services/cart.service';
 import { Category, Grade, ListingCard, ListingSearchParams, SpringPage } from '../../../core/models/catalog.models';
+import { gradeLabel } from '../../../core/utils/labels';
 
 const EMPTY_PAGE: SpringPage<ListingCard> = {
   content: [],
@@ -34,6 +35,8 @@ export class CatalogList implements OnInit {
   readonly grades: Grade[] = ['GRADE_A', 'GRADE_B', 'GRADE_C'];
 
   filters: ListingSearchParams = { page: 1, limit: 20 };
+
+  readonly gradeLabel = gradeLabel;
 
   constructor(
     private readonly catalogApi: CatalogApiService,

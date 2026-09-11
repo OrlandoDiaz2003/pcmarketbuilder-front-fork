@@ -1,61 +1,133 @@
-<a class="back" routerLink="/">&larr; Volver al catálogo</a>
+<a class="back" routerLink="/"><i class="fa-solid fa-arrow-left"></i> Volver al catálogo</a>
 
 @if (loading()) {
   <p>Cargando...</p>
 } @else if (error()) {
   <p class="error">{{ error() }}</p>
 } @else if (listing(); as item) {
-  <article class="detail">
-    <div class="gallery">
-      @if (item.images.length > 0) {
-        @for (image of item.images; track image.imageId) {
-          <img [src]="image.imageUrl" [alt]="item.title" [class.primary]="image.isPrimary" />
+  <div class="detail-page">
+    <div class="product-main">
+
+      <!-- GALERÍA DE FOTOS -->
+      <div class="gallery-container">
+        @if (item.images.length > 0) {
+          <div class="main-image">
+            <img [src]="item.images[selectedImageIndex()]?.imageUrl" [alt]="item.title" />
+          </div>
+          @if (item.images.length > 1) {
+            <div class="thumbnails">
+              @for (image of item.images; track image.imageId; let i = $index) {
+                <div class="thumb" [class.active]="i === selectedImageIndex()" (click)="selectImage(i)">
+                  <img [src]="image.imageUrl" [alt]="item.title" />
+                </div>
+              }
+            </div>
+          }
+        } @else {
+          <div class="main-image no-image">
+            <i class="fa-solid fa-microchip"></i>
+          </div>
         }
-      } @else {
-        <div class="thumb-placeholder">Sin imágenes</div>
-      }
-    </div>
+      </div>
 
-    <div class="info">
-      <h1>{{ item.title }}</h1>
-      <p class="price">{{ item.price | number: '1.0-0' }}</p>
-      <p class="status">{{ item.status }} · {{ item.grade }}</p>
-
-      @if (cart.has(item.publicationId)) {
-        <button type="button" class="in-cart" disabled>En el carrito ✓</button>
-      } @else {
-        <button type="button" class="add-cart" (click)="addToCart()">Agregar al carrito</button>
-      }
+      <!-- ESTADO DEL COMPONENTE -->
+      <div class="condition-card">
+        <h3>Evaluación de Estado & Conservación</h3>
+        <div class="condition-grid">
+          <div class="condition-item">
+            <span class="condition-label">Grado de Conservación</span>
+            <span class="grade-badge">{{ gradeLabel(item.grade) }}</span>
+          </div>
+          @if (item.usageTimeMonths != null) {
+            <div class="condition-item">
+              <span class="condition-label">Antigüedad Aprox. de Uso</span>
+              <span class="condition-value">{{ item.usageTimeMonths }} meses</span>
+            </div>
+          }
+          <div class="condition-item">
+            <span class="condition-label">Estado de la publicación</span>
+            <span class="condition-value">{{ statusLabel(item.status) }}</span>
+          </div>
+        </div>
+      </div>
 
       @if (item.description) {
-        <p class="description">{{ item.description }}</p>
+        <div class="description-box">
+          <h3>Descripción del Vendedor</h3>
+          <p>{{ item.description }}</p>
+        </div>
       }
 
       @if (item.product; as product) {
-        <section class="specs">
-          <h2>Especificaciones</h2>
-          <ul>
-            <li>Marca: {{ product.brand }}</li>
-            <li>Modelo: {{ product.model }}</li>
+        <div class="description-box">
+          <h3>Especificaciones</h3>
+          <div class="condition-grid">
+            <div class="condition-item">
+              <span class="condition-label">Marca</span>
+              <span class="condition-value">{{ product.brand }}</span>
+            </div>
+            <div class="condition-item">
+              <span class="condition-label">Modelo</span>
+              <span class="condition-value">{{ product.model }}</span>
+            </div>
             @if (product.socket) {
-              <li>Socket: {{ product.socket }}</li>
+              <div class="condition-item">
+                <span class="condition-label">Socket</span>
+                <span class="condition-value">{{ product.socket }}</span>
+              </div>
             }
             @if (product.ramType) {
-              <li>Tipo de RAM: {{ product.ramType }}</li>
+              <div class="condition-item">
+                <span class="condition-label">Tipo de RAM</span>
+                <span class="condition-value">{{ product.ramType }}</span>
+              </div>
             }
-          </ul>
-        </section>
+          </div>
+        </div>
       }
 
-      @if (item.seller; as seller) {
-        <section class="seller">
-          <h2>Vendedor</h2>
-          <p>{{ seller.username }}</p>
-          @if (seller.bio) {
-            <p class="bio">{{ seller.bio }}</p>
-          }
-        </section>
-      }
     </div>
-  </article>
+
+    <!-- COLUMNA DERECHA -->
+    <div class="purchase-panel">
+
+      <div class="buy-card">
+        <h1 class="product-title">{{ item.title }}</h1>
+
+        <div class="price-tag">{{ item.price | number: '1.0-0' }} CLP</div>
+
+        <div class="qa-banner">
+          <i class="fa-solid fa-shield-halved"></i>
+          <span>Publicación inspeccionada y verificada por PC Market Builder.</span>
+        </div>
+
+        <div class="action-buttons">
+          @if (cart.has(item.publicationId)) {
+            <button type="button" class="btn btn-secondary" disabled>
+              <i class="fa-solid fa-check"></i> En el carrito
+            </button>
+          } @else {
+            <button type="button" class="btn btn-primary" (click)="addToCart()">
+              <i class="fa-solid fa-bag-shopping"></i> Agregar al carrito
+            </button>
+          }
+        </div>
+      </div>
+
+      @if (item.seller; as seller) {
+        <div class="seller-card">
+          <div class="seller-info">
+            <div class="seller-avatar">{{ seller.username.charAt(0).toUpperCase() }}</div>
+            <div class="seller-details">
+              <h4>{{ '@' + seller.username }}</h4>
+              @if (seller.bio) {
+                <p>{{ seller.bio }}</p>
+              }
+            </div>
+          </div>
+        </div>
+      }
+
+    </div>
+  </div>
 }

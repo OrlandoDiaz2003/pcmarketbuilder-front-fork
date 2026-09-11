@@ -4,6 +4,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { CatalogApiService } from '../../../core/services/catalog-api.service';
 import { CartService } from '../../../core/services/cart.service';
 import { ListingDetail } from '../../../core/models/catalog.models';
+import { gradeLabel, statusLabel } from '../../../core/utils/labels';
 
 @Component({
   selector: 'app-listing-detail',
@@ -15,6 +16,10 @@ export class ListingDetailPage implements OnInit {
   readonly listing = signal<ListingDetail | null>(null);
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
+  readonly selectedImageIndex = signal(0);
+
+  readonly gradeLabel = gradeLabel;
+  readonly statusLabel = statusLabel;
 
   constructor(
     private readonly route: ActivatedRoute,
@@ -32,6 +37,7 @@ export class ListingDetailPage implements OnInit {
     this.catalogApi.getListingDetail(publicationId).subscribe({
       next: (listing) => {
         this.listing.set(listing);
+        this.selectedImageIndex.set(Math.max(0, listing.images.findIndex((i) => i.isPrimary)));
         this.loading.set(false);
       },
       error: () => {
@@ -39,6 +45,10 @@ export class ListingDetailPage implements OnInit {
         this.loading.set(false);
       },
     });
+  }
+
+  selectImage(index: number): void {
+    this.selectedImageIndex.set(index);
   }
 
   addToCart(): void {
