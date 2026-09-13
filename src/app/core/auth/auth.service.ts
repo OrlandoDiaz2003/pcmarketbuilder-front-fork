@@ -72,6 +72,11 @@ export class AuthService implements OnDestroy {
     return (roles?.[0] as UserRole) ?? null;
   }
 
+  /** Solo WORKSHOP_ADMIN ve el menú de administración y puede eliminar publicaciones. */
+  get isAdmin(): boolean {
+    return this.role === 'WORKSHOP_ADMIN';
+  }
+
   get displayName(): string | null {
     return this.claims?.name ?? this.account()?.username ?? null;
   }

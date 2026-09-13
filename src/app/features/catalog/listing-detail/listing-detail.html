@@ -112,6 +112,12 @@
             </button>
           }
         </div>
+
+        @if (auth.isAdmin) {
+          <button type="button" class="btn btn-danger admin-delete" [disabled]="deleting()" (click)="deleteListing()">
+            <i class="fa-solid fa-trash"></i> {{ deleting() ? 'Eliminando...' : 'Eliminar publicación (admin)' }}
+          </button>
+        }
       </div>
 
       @if (item.seller; as seller) {

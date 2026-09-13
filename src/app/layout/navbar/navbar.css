@@ -45,6 +45,16 @@
   color: var(--accent);
 }
 
+.admin-link {
+  color: var(--danger) !important;
+}
+
+.admin-link.active,
+.admin-link:hover {
+  color: var(--danger) !important;
+  opacity: 0.8;
+}
+
 .session {
   display: flex;
   align-items: center;

@@ -27,4 +27,9 @@ export class CatalogApiService {
   getListingDetail(publicationId: string): Observable<ListingDetail> {
     return this.http.get<ListingDetail>(`${this.baseUrl}/listings/${publicationId}`);
   }
+
+  /** Solo WORKSHOP_ADMIN: el backend rechaza con 403 a cualquier otro rol. */
+  deleteListing(publicationId: string): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/listings/${publicationId}`);
+  }
 }

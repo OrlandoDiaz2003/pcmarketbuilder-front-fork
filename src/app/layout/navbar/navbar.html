@@ -9,6 +9,11 @@
     @if (auth.isAuthenticated) {
       <a routerLink="/profile" routerLinkActive="active">Mi perfil</a>
     }
+    @if (auth.isAdmin) {
+      <a routerLink="/admin/publications" routerLinkActive="active" class="admin-link">
+        <i class="fa-solid fa-shield-halved"></i> Admin
+      </a>
+    }
   </nav>
 
   <div class="session">

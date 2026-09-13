@@ -10,3 +10,4 @@ export const environment = {
     postLogoutRedirectUri: 'http://localhost:4200',
   },
 };
+

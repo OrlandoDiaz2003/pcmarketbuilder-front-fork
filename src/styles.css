@@ -90,6 +90,16 @@ a {
   background-color: #f1f5f9;
 }
 
+.btn-danger {
+  background-color: #fef2f2;
+  color: var(--danger);
+  border-color: #fecaca;
+}
+
+.btn-danger:hover:not(:disabled) {
+  background-color: #fee2e2;
+}
+
 .form-error {
   color: var(--danger);
   background-color: #fef2f2;

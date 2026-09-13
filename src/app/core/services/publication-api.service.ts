@@ -1,4 +1,4 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
@@ -11,10 +11,8 @@ export class PublicationApiService {
   constructor(private readonly http: HttpClient) {}
 
   createListing(body: CreateListingRequest): Observable<Publication> {
-    // El interceptor de identidad solo agrega X-User-Role si Entra ID trae
-    // app roles asignados; mientras eso no esté configurado (ver README),
-    // forzamos BUYER_SELLER aquí para que el BFF/ms-user autorice la creación.
-    const headers = new HttpHeaders({ 'X-User-Role': 'BUYER_SELLER' });
-    return this.http.post<Publication>(`${this.baseUrl}/listings`, body, { headers });
+    // X-User-Id/X-User-Role los agrega identityHeadersInterceptor con el rol
+    // real de los claims de Entra ID (ya configurados los 3 app roles).
+    return this.http.post<Publication>(`${this.baseUrl}/listings`, body);
   }
 }

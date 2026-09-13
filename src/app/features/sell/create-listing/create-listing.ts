@@ -15,6 +15,7 @@ import { gradeLabel } from '../../../core/utils/labels';
   templateUrl: './create-listing.html',
   styleUrl: './create-listing.css',
 })
+
 export class CreateListing implements OnInit {
   readonly categories = signal<Category[]>([]);
   readonly products = signal<Product[]>([]);

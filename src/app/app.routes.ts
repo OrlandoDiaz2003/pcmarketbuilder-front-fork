@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { MsalGuard } from '@azure/msal-angular';
+import { adminGuard } from './core/auth/admin.guard';
 
 export const routes: Routes = [
   {
@@ -24,5 +25,11 @@ export const routes: Routes = [
     path: 'sell/new',
     canActivate: [MsalGuard],
     loadComponent: () => import('./features/sell/create-listing/create-listing').then((m) => m.CreateListing),
+  },
+  {
+    path: 'admin/publications',
+    canActivate: [MsalGuard, adminGuard],
+    loadComponent: () =>
+      import('./features/admin/admin-publications/admin-publications').then((m) => m.AdminPublications),
   },
 ];
