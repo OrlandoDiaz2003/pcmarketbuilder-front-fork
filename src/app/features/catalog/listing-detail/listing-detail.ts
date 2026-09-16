@@ -55,6 +55,12 @@ export class ListingDetailPage implements OnInit {
     this.selectedImageIndex.set(index);
   }
 
+  /** True si la publicación pertenece al usuario autenticado (mismo azure_oid). */
+  isOwnListing(): boolean {
+    const item = this.listing();
+    return !!item?.sellerId && item.sellerId === this.auth.claims?.oid;
+  }
+
   addToCart(): void {
     const item = this.listing();
     if (!item) return;

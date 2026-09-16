@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { CatalogApiService } from '../../../core/services/catalog-api.service';
 import { CartService } from '../../../core/services/cart.service';
+import { AuthService } from '../../../core/auth/auth.service';
 import { Category, Grade, ListingCard, ListingSearchParams, SpringPage } from '../../../core/models/catalog.models';
 import { gradeLabel } from '../../../core/utils/labels';
 
@@ -41,7 +42,13 @@ export class CatalogList implements OnInit {
   constructor(
     private readonly catalogApi: CatalogApiService,
     readonly cart: CartService,
+    readonly auth: AuthService,
   ) {}
+
+  /** True si el listing pertenece al usuario autenticado (mismo azure_oid). */
+  isOwnListing(listing: ListingCard): boolean {
+    return !!listing.sellerId && listing.sellerId === this.auth.claims?.oid;
+  }
 
   ngOnInit(): void {
     this.catalogApi.getCategories().subscribe({ next: (categories) => this.categories.set(categories) });
