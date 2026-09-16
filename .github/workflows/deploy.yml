@@ -1,0 +1,74 @@
+name: Build and deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Permisos para GitHub Pages (deploy desde Actions).
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Solo un deploy a la vez (no se cancela el en curso).
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment: github-pages
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Configure GitHub Pages
+        id: pages
+        uses: actions/configure-pages@v5
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate environment from repository secrets
+        env:
+          # Endpoint del BFF (API). Cuando migren a AWS, solo cambien este secret
+          # por la URL del API Gateway / API Manager.
+          BFF_BASE_URL: ${{ secrets.BFF_BASE_URL }}
+          MSAL_CLIENT_ID: ${{ secrets.MSAL_CLIENT_ID }}
+          MSAL_TENANT_ID: ${{ secrets.MSAL_TENANT_ID }}
+          # Deben coincidir con las Redirect URIs registradas en Entra ID.
+          MSAL_REDIRECT_URI: ${{ secrets.MSAL_REDIRECT_URI }}
+          MSAL_POST_LOGOUT_REDIRECT_URI: ${{ secrets.MSAL_POST_LOGOUT_REDIRECT_URI }}
+        run: npm run setenv
+
+      - name: Build
+        shell: bash
+        run: npx ng build --configuration production --base-href="${{ steps.pages.outputs.base_url }}"
+
+      # GitHub Pages sirve 404.html para rutas que no existen; copiar el index
+      # permite que el routing del SPA funcione al refrescar (ej /profile).
+      - name: Add 404.html for SPA routing
+        working-directory: dist/pc_builderfront/browser
+        run: cp index.html 404.html
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist/pc_builderfront/browser
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
