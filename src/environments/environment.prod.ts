@@ -6,5 +6,6 @@ export const environment = {
     tenantId: '35365687-614a-481c-8b8b-b4debee24880',
     redirectUri: 'https://localhost:4200',
     postLogoutRedirectUri: 'https://localhost:4200',
+    signUpAuthority: '',
   },
 };

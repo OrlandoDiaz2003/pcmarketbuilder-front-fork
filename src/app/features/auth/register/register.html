@@ -1,0 +1,66 @@
+<div class="register-page">
+  <div class="register-card">
+    <h1>Crear tu cuenta en PC Market Builder</h1>
+    <p class="subtitle">
+      El registro se realiza con tu cuenta de Microsoft (Entra ID). Antes de continuar
+      revisa y acepta los Términos y Condiciones del servicio.
+    </p>
+
+    <section class="terms">
+      <h2>1. Modelo de negocio</h2>
+      <p>
+        <strong>PC Market Builder</strong> es un marketplace comunitario C2C (compraventa
+        entre usuarios) intermediado por la empresa, que además ofrece un servicio de
+        ensamble B2C ("PC Builder Asistido"). La empresa actúa como centro técnico de
+        acopio, verificación, mantenimiento y ensamble, garantizando que el hardware
+        entregado al comprador final esté probado y en óptimas condiciones.
+      </p>
+
+      <h3>Venta de pieza individual (intermediada)</h3>
+      <ul>
+        <li>El dinero se mantiene en <strong>custodia (escrow)</strong> en la plataforma hasta que la entrega se complete con éxito.</li>
+        <li>El vendedor envía la pieza al taller de la empresa, donde se realiza limpieza, mantenimiento básico y pruebas de rendimiento.</li>
+        <li>La pieza se despacha al comprador final con <strong>Garantía de Funcionamiento</strong> otorgada por la empresa.</li>
+      </ul>
+
+      <h3>Servicio "PC Builder Asistido"</h3>
+      <ul>
+        <li>El cliente selecciona manualmente piezas de distintos vendedores y la plataforma aplica un chequeo automático de compatibilidad básica.</li>
+        <li><strong>Sin pago ni reserva de piezas en la creación.</strong> La solicitud queda en revisión hasta que un agente técnico la apruebe, ajuste o rechace.</li>
+        <li>Solo tras la aprobación (o aceptar un ajuste) se habilita el checkout y el dinero pasa a escrow.</li>
+      </ul>
+
+      <h2>2. Políticas clave de operación</h2>
+      <ul>
+        <li><strong>Tiempo de tolerancia para envíos:</strong> el vendedor dispone de 48 a 72 horas para despachar la pieza al taller una vez confirmada la compra.</li>
+        <li><strong>Derecho a apelación:</strong> el vendedor puede solicitar una extensión de plazo justificando fuerza mayor mediante el panel de soporte.</li>
+        <li><strong>Garantía de funcionamiento:</strong> cada pieza o equipo armado despachado por el taller cuenta con la garantía de que el hardware fue probado exhaustivamente.</li>
+        <li><strong>Penalizaciones:</strong> si una pieza requiere mantenimiento correctivo mayor por fallas no declaradas en la publicación, la empresa podrá ajustar el margen o cancelar la transacción según decida el comprador.</li>
+        <li><strong>Revisión previa al pago:</strong> ninguna solicitud de PC Builder Asistido cobra ni reserva piezas hasta la aprobación del agente técnico.</li>
+      </ul>
+
+      <h2>3. Sobre tu cuenta</h2>
+      <ul>
+        <li>Tu cuenta se vincula con tu identidad de Microsoft (Entra ID); creamos tu perfil de usuario automáticamente al registrarte.</li>
+        <li>Eres responsable de que la información publicada sea veraz y cumpla la normativa aplicable.</li>
+        <li>La plataforma puede suspender cuentas que infrinjan estos términos o las políticas de operación.</li>
+      </ul>
+
+      <h2>4. Aceptación</h2>
+      <p class="accept-note">
+        Haciendo clic en "Aceptar y registrarte" confirmas que has leído, entendido y
+        aceptado estos Términos y Condiciones, y que continuarás con la creación de tu
+        cuenta a través de Microsoft.
+      </p>
+    </section>
+
+    <div class="actions">
+      @if (accepted) {
+        <p class="redirecting">Redirigiendo a Microsoft para crear tu cuenta…</p>
+      } @else {
+        <button type="button" class="btn btn-primary" (click)="accept()">Aceptar y registrarte</button>
+      }
+      <a class="btn btn-outline" routerLink="/">Cancelar</a>
+    </div>
+  </div>
+</div>

@@ -22,6 +22,10 @@ export const routes: Routes = [
     loadComponent: () => import('./features/cart/cart-page/cart-page').then((m) => m.CartPage),
   },
   {
+    path: 'register',
+    loadComponent: () => import('./features/auth/register/register').then((m) => m.Register),
+  },
+  {
     path: 'sell/new',
     canActivate: [MsalGuard],
     loadComponent: () => import('./features/sell/create-listing/create-listing').then((m) => m.CreateListing),

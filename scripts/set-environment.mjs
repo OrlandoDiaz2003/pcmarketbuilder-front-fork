@@ -12,7 +12,8 @@ const environment = {
     clientId: read('MSAL_CLIENT_ID', '6c2342af-22f6-4de8-a545-2a3b04e7d1ff'),
     tenantId: read('MSAL_TENANT_ID', '35365687-614a-481c-8b8b-b4debee24880'),
     redirectUri: read('MSAL_REDIRECT_URI', 'https://localhost:4200'),
-    postLogoutRedirectUri: read('MSAL_POST_LOGOUT_REDIRECT_URI', 'https://localhost:4200')
+    postLogoutRedirectUri: read('MSAL_POST_LOGOUT_REDIRECT_URI', 'https://localhost:4200'),
+    signUpAuthority: read('MSAL_SIGN_UP_AUTHORITY', '')
   }
 };
 
@@ -24,7 +25,8 @@ const content = [
   `    clientId: '${environment.msal.clientId}',`,
   `    tenantId: '${environment.msal.tenantId}',`,
   `    redirectUri: '${environment.msal.redirectUri}',`,
-  `    postLogoutRedirectUri: '${environment.msal.postLogoutRedirectUri}',`,
+  `    postLogoutRedirectUri: '${environment.msal.postLogoutRedirectUri}',
+    signUpAuthority: '${environment.msal.signUpAuthority}',`,
   '  },',
   '};',
   ''

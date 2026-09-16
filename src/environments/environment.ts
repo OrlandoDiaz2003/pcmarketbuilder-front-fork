@@ -8,6 +8,9 @@ export const environment = {
     tenantId: '35365687-614a-481c-8b8b-b4debee24880',
     redirectUri: 'http://localhost:4200',
     postLogoutRedirectUri: 'http://localhost:4200',
+    // Autoridad de alta de usuario. Vacía => se usa prompt=create sobre el tenant
+    // de Entra ID. Para B2C poner p.ej. "https://<tenant>.b2clogin.com/<tenant>.<onmicrosoft.com>/B2C_1_signupsignin".
+    signUpAuthority: '',
   },
 };
 

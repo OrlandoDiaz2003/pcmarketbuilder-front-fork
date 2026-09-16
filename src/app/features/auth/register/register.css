@@ -1,0 +1,74 @@
+:host {
+  display: block;
+  padding: 24px;
+}
+
+.register-page {
+  max-width: 860px;
+  margin: 0 auto;
+}
+
+.register-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 1.5rem 2rem;
+  box-shadow: var(--shadow);
+}
+
+.register-card h1 {
+  font-size: 1.4rem;
+  margin: 0 0 0.5rem;
+  color: var(--primary);
+}
+
+.subtitle {
+  color: var(--text-muted);
+  margin: 0 0 1.25rem;
+}
+
+.terms {
+  border-top: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+  padding: 1rem 0;
+}
+
+.terms h2 {
+  font-size: 1.05rem;
+  margin: 1.1rem 0 0.4rem;
+}
+
+.terms h3 {
+  font-size: 0.95rem;
+  margin: 0.9rem 0 0.3rem;
+  color: var(--text-dark);
+}
+
+.terms p,
+.terms li {
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: var(--text-dark);
+}
+
+.terms ul {
+  padding-left: 1.25rem;
+  margin: 0.3rem 0 0.5rem;
+}
+
+.accept-note {
+  color: var(--text-muted);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 1.25rem;
+}
+
+.redirecting {
+  color: var(--accent);
+  font-weight: 500;
+  margin: 0;
+}

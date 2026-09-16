@@ -32,6 +32,9 @@
       <span class="user"><i class="fa-solid fa-circle-user"></i> {{ auth.displayName }}</span>
       <button type="button" class="btn btn-primary" (click)="logout()">Cerrar sesión</button>
     } @else {
+      <a class="btn btn-outline" routerLink="/register">
+        <i class="fa-solid fa-user-plus"></i> Registrarse
+      </a>
       <button type="button" class="btn btn-primary" (click)="login()">Iniciar sesión</button>
     }
   </div>

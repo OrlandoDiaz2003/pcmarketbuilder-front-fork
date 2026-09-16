@@ -4,6 +4,7 @@ import { AccountInfo, EventMessage, EventType, InteractionStatus } from '@azure/
 import { Subject } from 'rxjs';
 import { filter, takeUntil } from 'rxjs/operators';
 import { UserRole } from '../models/user.models';
+import { environment } from '../../../environments/environment';
 
 export interface EntraClaims {
   oid?: string;
@@ -89,6 +90,18 @@ export class AuthService implements OnDestroy {
 
   login(): void {
     this.msalService.loginRedirect();
+  }
+
+  /** Registro: usa la autoridad de alta (B2C) si el tenant la define; si no,
+   *  fuerza el flujo de creación de cuenta de Entra ID. Antes de llamarlo el
+   *  usuario debe aceptar los Términos y Condiciones (ver página /register). */
+  signUp(): void {
+    const authority = environment.msal.signUpAuthority || undefined;
+    this.msalService.loginRedirect({
+      scopes: ['openid', 'profile', 'email'],
+      ...(authority ? { authority } : {}),
+      extraQueryParameters: { prompt: 'create' },
+    });
   }
 
   logout(): void {
