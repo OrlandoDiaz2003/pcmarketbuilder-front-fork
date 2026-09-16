@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { UserApiService } from '../../../core/services/user-api.service';
 import { UpdateProfileRequest, UserResponse } from '../../../core/models/user.models';
-import { gradeLabel, memberSince } from '../../../core/utils/labels';
+import { gradeLabel, memberSince, statusLabel } from '../../../core/utils/labels';
 
 @Component({
   selector: 'app-profile-page',
@@ -19,15 +19,21 @@ export class ProfilePage implements OnInit {
   readonly error = signal<string | null>(null);
   readonly saved = signal(false);
 
-  // Las publicaciones ya vienen resueltas en el perfil (ms-user las agrega
-  // consultando publication-service, ver Client.PublicationClient); acá solo
-  // se filtran las activas para la grilla "Mis Publicaciones Activas".
-  readonly activeListings = computed(
-    () => this.user()?.publications.filter((p) => p.status === 'ACTIVE') ?? [],
+  // Todas las publicaciones del usuario (cualquier estado), resueltas por
+  // ms-user contra publication-service (ver Client.PublicationClient). Se
+  // muestran ordenadas de más reciente a más antigua.
+  readonly allListings = computed(
+    () =>
+      this.user()?.publications
+        .slice()
+        .sort(
+          (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+        ) ?? [],
   );
 
   readonly gradeLabel = gradeLabel;
   readonly memberSince = memberSince;
+  readonly statusLabel = statusLabel;
 
   form: UpdateProfileRequest = {};
 

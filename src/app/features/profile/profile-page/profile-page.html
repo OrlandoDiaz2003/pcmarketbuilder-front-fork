@@ -65,13 +65,13 @@
       </form>
     </div>
 
-    <!-- PUBLICACIONES ACTIVAS -->
+    <!-- PUBLICACIONES DEL USUARIO -->
     <div>
-      <h2 class="section-title">Mis Publicaciones Activas</h2>
+      <h2 class="section-title">Mis Publicaciones</h2>
 
-      @if (activeListings().length > 0) {
+      @if (allListings().length > 0) {
         <div class="publications-grid">
-          @for (listing of activeListings(); track listing.publicationId) {
+          @for (listing of allListings(); track listing.publicationId) {
             <div class="publication-card">
               <div class="pub-image">
                 @if (listing.primaryImage) {
@@ -83,6 +83,7 @@
               <div class="pub-body">
                 <div class="pub-meta">
                   <span class="grade-tag">{{ gradeLabel(listing.grade) }}</span>
+                  <span class="status-tag">{{ statusLabel(listing.status) }}</span>
                 </div>
                 <h3 class="pub-title">{{ listing.title }}</h3>
                 <div class="pub-footer">
@@ -94,7 +95,7 @@
           }
         </div>
       } @else {
-        <p class="empty-hint">Todavía no tenés publicaciones activas. <a routerLink="/sell/new">Crear una</a>.</p>
+        <p class="empty-hint">Todavía no tenés publicaciones. <a routerLink="/sell/new">Crear una</a>.</p>
       }
     </div>
 
