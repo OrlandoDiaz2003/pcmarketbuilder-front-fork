@@ -49,7 +49,7 @@ jobs:
 
       - name: Build
         shell: bash
-        run: npx ng build --configuration production --base-href="${{ steps.pages.outputs.base_url }}"
+        run: npx ng build --configuration production --base-href="${{ steps.pages.outputs.base_url }}/"
 
       # GitHub Pages sirve 404.html para rutas que no existen; copiar el index
       # permite que el routing del SPA funcione al refrescar (ej /profile).
