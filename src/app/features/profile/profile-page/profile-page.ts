@@ -24,11 +24,9 @@ export class ProfilePage implements OnInit {
   // muestran ordenadas de más reciente a más antigua.
   readonly allListings = computed(
     () =>
-      this.user()?.publications
-        .slice()
-        .sort(
-          (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-        ) ?? [],
+      (this.user()?.publications ?? []).slice().sort(
+        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+      ),
   );
 
   readonly gradeLabel = gradeLabel;
