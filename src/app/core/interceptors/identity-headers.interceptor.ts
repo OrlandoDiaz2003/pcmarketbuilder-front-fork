@@ -22,7 +22,7 @@ export const identityHeadersInterceptor: HttpInterceptorFn = (req, next) => {
   }
 
   const headers: Record<string, string> = { 'X-User-Id': claims.oid };
-  if (authService.role) headers['X-User-Role'] = authService.role;
+  headers['X-User-Role'] = authService.role;
   const email = claims.email ?? claims.preferred_username;
   if (email) headers['X-User-Email'] = email;
   if (claims.name) headers['X-User-Name'] = claims.name;

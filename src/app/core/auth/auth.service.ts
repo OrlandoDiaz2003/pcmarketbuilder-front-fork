@@ -13,6 +13,9 @@ export interface EntraClaims {
   name?: string;
 }
 
+const DEFAULT_ROLE: UserRole = 'BUYER_SELLER';
+const KNOWN_ROLES: UserRole[] = ['BUYER_SELLER', 'TECHNICAL_AGENT', 'WORKSHOP_ADMIN'];
+
 @Injectable({ providedIn: 'root' })
 export class AuthService implements OnDestroy {
   private readonly destroyed$ = new Subject<void>();
@@ -67,9 +70,12 @@ export class AuthService implements OnDestroy {
   }
 
   /** Rol de aplicación (app role) asignado en Entra ID. Usado por ms-user al sincronizar. */
-  get role(): UserRole | null {
+  get role(): UserRole {
     const roles = this.claims?.roles;
-    return (roles?.[0] as UserRole) ?? null;
+    const knownRole = (roles ?? []).find((r): r is UserRole =>
+      (KNOWN_ROLES as string[]).includes(r),
+    );
+    return knownRole ?? DEFAULT_ROLE;
   }
 
   /** Solo WORKSHOP_ADMIN ve el menú de administración y puede eliminar publicaciones. */
