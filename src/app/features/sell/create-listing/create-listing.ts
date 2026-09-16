@@ -1,3 +1,4 @@
+import { DecimalPipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -6,13 +7,15 @@ import { CatalogApiService } from '../../../core/services/catalog-api.service';
 import { ProductApiService } from '../../../core/services/product-api.service';
 import { PublicationApiService } from '../../../core/services/publication-api.service';
 import { Category, CreateListingRequest, Grade, Product } from '../../../core/models/catalog.models';
+import { gradeLabel } from '../../../core/utils/labels';
 
 @Component({
   selector: 'app-create-listing',
-  imports: [FormsModule],
+  imports: [FormsModule, DecimalPipe],
   templateUrl: './create-listing.html',
   styleUrl: './create-listing.css',
 })
+
 export class CreateListing implements OnInit {
   readonly categories = signal<Category[]>([]);
   readonly products = signal<Product[]>([]);
@@ -22,6 +25,7 @@ export class CreateListing implements OnInit {
   readonly error = signal<string | null>(null);
 
   readonly grades: Grade[] = ['GRADE_A', 'GRADE_B', 'GRADE_C'];
+  readonly gradeLabel = gradeLabel;
 
   subcategoryId?: string;
   productQuery = '';

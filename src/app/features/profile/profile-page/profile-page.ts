@@ -1,17 +1,14 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { DecimalPipe } from '@angular/common';
+import { Component, OnInit, computed, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { forkJoin } from 'rxjs';
-import { AuthService } from '../../../core/auth/auth.service';
-import { CatalogApiService } from '../../../core/services/catalog-api.service';
+import { RouterLink } from '@angular/router';
 import { UserApiService } from '../../../core/services/user-api.service';
-import { PublicationStatus } from '../../../core/models/catalog.models';
 import { UpdateProfileRequest, UserResponse } from '../../../core/models/user.models';
-
-const ALL_STATUSES: PublicationStatus[] = ['ACTIVE', 'RESERVED', 'SOLD', 'IN_INSPECTION', 'WITHDRAWN'];
+import { gradeLabel, memberSince } from '../../../core/utils/labels';
 
 @Component({
   selector: 'app-profile-page',
-  imports: [FormsModule],
+  imports: [FormsModule, RouterLink, DecimalPipe],
   templateUrl: './profile-page.html',
   styleUrl: './profile-page.css',
 })
@@ -22,16 +19,19 @@ export class ProfilePage implements OnInit {
   readonly error = signal<string | null>(null);
   readonly saved = signal(false);
 
-  readonly publicationsCount = signal<number | null>(null);
-  readonly publicationsLoading = signal(true);
+  // Las publicaciones ya vienen resueltas en el perfil (ms-user las agrega
+  // consultando publication-service, ver Client.PublicationClient); acá solo
+  // se filtran las activas para la grilla "Mis Publicaciones Activas".
+  readonly activeListings = computed(
+    () => this.user()?.publications.filter((p) => p.status === 'ACTIVE') ?? [],
+  );
+
+  readonly gradeLabel = gradeLabel;
+  readonly memberSince = memberSince;
 
   form: UpdateProfileRequest = {};
 
-  constructor(
-    private readonly userApi: UserApiService,
-    private readonly catalogApi: CatalogApiService,
-    private readonly auth: AuthService,
-  ) {}
+  constructor(private readonly userApi: UserApiService) {}
 
   ngOnInit(): void {
     // Provisioning JIT: primera vez que el usuario entra tras loguearse con Entra,
@@ -39,28 +39,6 @@ export class ProfilePage implements OnInit {
     this.userApi.syncUser().subscribe({
       next: () => this.loadProfile(),
       error: () => this.loadProfile(),
-    });
-    this.loadPublicationsCount();
-  }
-
-  private loadPublicationsCount(): void {
-    // sellerId en las publicaciones es el claim "oid" de Entra (azure_oid), NO el
-    // userId interno de ms-user: por eso se toma de los claims del token, no de UserResponse.
-    const sellerId = this.auth.claims?.oid;
-    if (!sellerId) {
-      this.publicationsLoading.set(false);
-      return;
-    }
-    forkJoin(
-      ALL_STATUSES.map((status) =>
-        this.catalogApi.searchListings({ sellerId, status, page: 1, limit: 1 }),
-      ),
-    ).subscribe({
-      next: (pages) => {
-        this.publicationsCount.set(pages.reduce((sum, page) => sum + page.totalElements, 0));
-        this.publicationsLoading.set(false);
-      },
-      error: () => this.publicationsLoading.set(false),
     });
   }
 

@@ -1,71 +1,127 @@
-<section class="filters">
-  <input
-    type="text"
-    placeholder="Buscar por título, marca, modelo..."
-    [(ngModel)]="filters.q"
-    (keyup.enter)="search()"
-  />
+<div class="marketplace">
 
-  <select [(ngModel)]="filters.subcategoryId">
-    <option [ngValue]="undefined">Todas las subcategorías</option>
-    @for (category of categories(); track category.categoryId) {
-      @for (sub of category.subcategories; track sub.subcategoryId) {
-        <option [ngValue]="sub.subcategoryId">{{ category.name }} · {{ sub.name }}</option>
+  <!-- BARRA LATERAL / FILTROS -->
+  <aside>
+    <h2>Filtros</h2>
+
+    <div class="filter-group">
+      <label>Buscar</label>
+      <div class="search-input">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input
+          type="text"
+          placeholder="Título, marca, modelo..."
+          [(ngModel)]="filters.q"
+          (keyup.enter)="search()"
+        />
+      </div>
+    </div>
+
+    <div class="filter-group">
+      <label>Categorías</label>
+      <ul class="categories-list">
+        <li>
+          <a
+            href="javascript:void(0)"
+            [class.active]="!filters.subcategoryId"
+            (click)="filters.subcategoryId = undefined; search()"
+          >
+            <i class="fa-solid fa-border-all"></i> Todas
+          </a>
+        </li>
+        @for (category of categories(); track category.categoryId) {
+          @for (sub of category.subcategories; track sub.subcategoryId) {
+            <li>
+              <a
+                href="javascript:void(0)"
+                [class.active]="filters.subcategoryId === sub.subcategoryId"
+                (click)="filters.subcategoryId = sub.subcategoryId; search()"
+              >
+                <i class="fa-solid fa-microchip"></i> {{ category.name }} · {{ sub.name }}
+              </a>
+            </li>
+          }
+        }
+      </ul>
+    </div>
+
+    <hr />
+
+    <div class="filter-group">
+      <label>Precio máx. ($ CLP)</label>
+      <input type="number" placeholder="Sin límite" [(ngModel)]="filters.maxPrice" min="0" (change)="search()" />
+    </div>
+
+    <div class="filter-group">
+      <label>Clasificación de Estado</label>
+      <select [(ngModel)]="filters.grade" (change)="search()">
+        <option [ngValue]="undefined">Todas</option>
+        @for (grade of grades; track grade) {
+          <option [ngValue]="grade">{{ gradeLabel(grade) }}</option>
+        }
+      </select>
+    </div>
+
+    <button type="button" class="btn btn-primary" style="width: 100%" (click)="search()">Buscar</button>
+  </aside>
+
+  <!-- GRILLA DE PUBLICACIONES -->
+  <main>
+    <div class="main-header">
+      <h1>Catálogo de Componentes Inspeccionados</h1>
+      @if (!loading() && !error()) {
+        <span class="result-count">{{ page().totalElements }} resultados</span>
+      }
+    </div>
+
+    @if (loading()) {
+      <p>Cargando publicaciones...</p>
+    } @else if (error()) {
+      <p class="error">{{ error() }}</p>
+    } @else {
+      <div class="grid">
+        @for (listing of page().content; track listing.publicationId) {
+          <a class="card" [routerLink]="['/listings', listing.publicationId]">
+            <div class="card-img">
+              @if (listing.primaryImage) {
+                <img [src]="listing.primaryImage" [alt]="listing.title" />
+              } @else {
+                <i class="fa-solid fa-microchip placeholder-icon"></i>
+              }
+            </div>
+            <div class="card-body">
+              <div class="price">{{ listing.price | number: '1.0-0' }} CLP</div>
+              <div class="title">{{ listing.title }}</div>
+              <div class="details">
+                <span>{{ gradeLabel(listing.grade) }}</span>
+                <span><i class="fa-solid fa-user"></i> {{ listing.seller?.username ?? 'Vendedor' }}</span>
+              </div>
+              @if (cart.has(listing.publicationId)) {
+                <button type="button" class="btn btn-secondary in-cart" disabled>
+                  <i class="fa-solid fa-check"></i> En el carrito
+                </button>
+              } @else {
+                <button type="button" class="btn btn-primary" (click)="addToCart(listing, $event)">
+                  <i class="fa-solid fa-cart-plus"></i> Agregar al carrito
+                </button>
+              }
+            </div>
+          </a>
+        } @empty {
+          <p>No hay publicaciones que coincidan con la búsqueda.</p>
+        }
+      </div>
+
+      @if (page().totalPages > 1) {
+        <nav class="pagination">
+          @for (n of pageNumbers(); track n) {
+            <button type="button" [class.active]="page().number === n - 1" (click)="goToPage(n)">
+              {{ n }}
+            </button>
+          }
+        </nav>
       }
     }
-  </select>
+  </main>
 
-  <select [(ngModel)]="filters.grade">
-    <option [ngValue]="undefined">Cualquier estado (grade)</option>
-    @for (grade of grades; track grade) {
-      <option [ngValue]="grade">{{ grade }}</option>
-    }
-  </select>
-
-  <input type="number" placeholder="Precio máx." [(ngModel)]="filters.maxPrice" min="0" />
-
-  <button type="button" (click)="search()">Buscar</button>
-</section>
-
-@if (loading()) {
-  <p>Cargando publicaciones...</p>
-} @else if (error()) {
-  <p class="error">{{ error() }}</p>
-} @else {
-  <section class="grid">
-    @for (listing of page().content; track listing.publicationId) {
-      <a class="card" [routerLink]="['/listings', listing.publicationId]">
-        <div class="thumb">
-          @if (listing.primaryImage) {
-            <img [src]="listing.primaryImage" [alt]="listing.title" />
-          } @else {
-            <span class="thumb-placeholder">Sin imagen</span>
-          }
-        </div>
-        <div class="body">
-          <h3>{{ listing.title }}</h3>
-          <p class="brand">{{ listing.product?.brand }} {{ listing.product?.model }}</p>
-          <p class="price">{{ listing.price | number: '1.0-0' }}</p>
-          <p class="seller">Vende: {{ listing.seller?.username ?? 'Vendedor desconocido' }}</p>
-          @if (cart.has(listing.publicationId)) {
-            <button type="button" class="in-cart" disabled>En el carrito ✓</button>
-          } @else {
-            <button type="button" class="add-cart" (click)="addToCart(listing, $event)">Agregar al carrito</button>
-          }
-        </div>
-      </a>
-    } @empty {
-      <p>No hay publicaciones que coincidan con la búsqueda.</p>
-    }
-  </section>
-
-  @if (page().totalPages > 1) {
-    <nav class="pagination">
-      @for (n of pageNumbers(); track n) {
-        <button type="button" [class.active]="page().number === n - 1" (click)="goToPage(n)">
-          {{ n }}
-        </button>
-      }
-    </nav>
-  }
-}
+</div>

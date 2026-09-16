@@ -1,95 +1,259 @@
+:host {
+  display: block;
+  padding: 24px;
+}
+
 .back {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   margin-bottom: 1rem;
-  color: #2563eb;
+  color: var(--accent);
   text-decoration: none;
+  font-size: 0.9rem;
 }
 
 .error {
-  color: #b91c1c;
+  color: var(--danger);
 }
 
-.detail {
+.detail-page {
+  max-width: 1000px;
+  margin: 0 auto;
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2rem;
+  grid-template-columns: 1fr 360px;
+  gap: 28px;
 }
 
 @media (max-width: 700px) {
-  .detail {
+  .detail-page {
     grid-template-columns: 1fr;
   }
 }
 
-.gallery {
+.product-main {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 20px;
 }
 
-.gallery img {
-  width: 100%;
+/* Galería */
+.gallery-container {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
-  object-fit: cover;
+  overflow: hidden;
+  box-shadow: var(--shadow);
 }
 
-.gallery img.primary {
-  order: -1;
-}
-
-.thumb-placeholder {
-  color: #999;
-  background: #f3f3f3;
-  border-radius: 8px;
-  aspect-ratio: 4 / 3;
+.main-image {
+  height: 320px;
+  background-color: #f1f5f9;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.info h1 {
-  margin: 0 0 0.5rem;
+.main-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
-.info .price {
-  font-size: 1.5rem;
-  font-weight: 700;
-  margin: 0;
+.main-image.no-image {
+  color: var(--text-muted);
+  font-size: 4rem;
 }
 
-.info .status {
-  color: #666;
-  margin: 0.25rem 0 1rem;
+.thumbnails {
+  display: flex;
+  gap: 8px;
+  padding: 12px;
+  border-top: 1px solid var(--border-color);
 }
 
-.info button {
-  margin-bottom: 1rem;
-  border-radius: 6px;
-  padding: 0.5rem 1.25rem;
+.thumb {
+  width: 56px;
+  height: 56px;
+  border-radius: 4px;
+  background-color: #f1f5f9;
+  border: 1px solid var(--border-color);
+  overflow: hidden;
   cursor: pointer;
 }
 
-.info .add-cart {
-  background: #2563eb;
-  color: #fff;
-  border: none;
+.thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
-.info .in-cart {
-  background: #f0fdf4;
-  color: #16a34a;
-  border: 1px solid #86efac;
-  cursor: default;
+.thumb.active {
+  border-color: var(--accent);
 }
 
-.info .description {
+/* Ficha de Estado y Calidad / Especificaciones */
+.condition-card,
+.description-box {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.condition-card h3,
+.description-box h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border-color);
+  margin: 0;
+}
+
+.description-box p {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--text-dark);
   white-space: pre-line;
+  margin: 0;
 }
 
-.specs ul {
-  padding-left: 1.2rem;
+.condition-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
 }
 
-.seller .bio {
-  color: #666;
+.condition-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.condition-label {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.condition-value {
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.grade-badge {
+  display: inline-block;
+  width: fit-content;
+  background-color: #f1f5f9;
+  color: var(--primary);
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  border: 1px solid var(--border-color);
+}
+
+/* --- DERECHA: PANEL DE COMPRA & VENDEDOR --- */
+.purchase-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.buy-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.product-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  line-height: 1.3;
+  margin: 0;
+}
+
+.price-tag {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--primary);
+}
+
+.qa-banner {
+  background-color: var(--badge-qa-bg);
+  color: var(--badge-qa-text);
+  padding: 10px 12px;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+}
+
+.qa-banner i {
+  font-size: 1.2rem;
+}
+
+.action-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.action-buttons .btn {
+  width: 100%;
+}
+
+.admin-delete {
+  width: 100%;
+  margin-top: 12px;
+}
+
+/* Vendedor Box */
+.seller-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: var(--shadow);
+}
+
+.seller-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.seller-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background-color: #cbd5e1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.seller-details h4 {
+  font-size: 0.88rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.seller-details p {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin: 2px 0 0;
 }

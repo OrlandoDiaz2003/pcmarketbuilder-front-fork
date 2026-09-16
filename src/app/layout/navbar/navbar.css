@@ -1,62 +1,73 @@
 .navbar {
+  background-color: var(--bg-card);
+  border-bottom: 1px solid var(--border-color);
+  padding: 12px 24px;
   display: flex;
   align-items: center;
-  gap: 1.5rem;
-  padding: 0.75rem 1.5rem;
-  border-bottom: 1px solid #2a2a2a;
-  background: #141414;
-  color: #eee;
+  gap: 24px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: var(--shadow);
 }
 
-.brand {
+.logo {
+  font-size: 1.1rem;
   font-weight: 700;
-  color: #fff;
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  gap: 10px;
   text-decoration: none;
+  letter-spacing: -0.3px;
+  white-space: nowrap;
+}
+
+.logo i {
+  font-size: 1.2rem;
 }
 
 .links {
   display: flex;
-  gap: 1rem;
+  gap: 20px;
   flex: 1;
 }
 
 .links a {
-  color: #bbb;
+  color: var(--text-muted);
   text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
 }
 
 .links a.active,
 .links a:hover {
-  color: #fff;
+  color: var(--accent);
+}
+
+.admin-link {
+  color: var(--danger) !important;
+}
+
+.admin-link.active,
+.admin-link:hover {
+  color: var(--danger) !important;
+  opacity: 0.8;
 }
 
 .session {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 12px;
 }
 
 .session .user {
-  color: #ccc;
-  font-size: 0.9rem;
-}
-
-.sell-button {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  color: #fff;
-  background: #16a34a;
-  text-decoration: none;
-  font-size: 0.85rem;
-  font-weight: 600;
-  border-radius: 6px;
-  padding: 0.4rem 0.9rem;
+  gap: 6px;
+  color: var(--text-muted);
+  font-size: 0.88rem;
   white-space: nowrap;
-}
-
-.sell-button:hover,
-.sell-button.active {
-  background: #15803d;
 }
 
 .cart-button {
@@ -64,23 +75,24 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 2rem;
-  height: 2rem;
+  width: 2.1rem;
+  height: 2.1rem;
   border-radius: 6px;
   text-decoration: none;
-  font-size: 1.1rem;
+  font-size: 1.05rem;
+  color: var(--text-dark);
 }
 
 .cart-button:hover,
 .cart-button.active {
-  background: #222;
+  background-color: #f1f5f9;
 }
 
 .cart-badge {
   position: absolute;
   top: -4px;
   right: -6px;
-  background: #dc2626;
+  background-color: #dc2626;
   color: #fff;
   font-size: 0.65rem;
   line-height: 1;
@@ -88,15 +100,12 @@
   border-radius: 999px;
 }
 
-.session button {
-  background: #2563eb;
-  color: #fff;
-  border: none;
-  border-radius: 6px;
-  padding: 0.4rem 0.9rem;
-  cursor: pointer;
-}
-
-.session button:hover {
-  background: #1d4ed8;
+@media (max-width: 720px) {
+  .navbar {
+    flex-wrap: wrap;
+  }
+  .links {
+    order: 3;
+    flex-basis: 100%;
+  }
 }
