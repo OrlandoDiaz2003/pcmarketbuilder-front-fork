@@ -105,6 +105,6 @@ export class AuthService implements OnDestroy {
   }
 
   logout(): void {
-    this.msalService.logoutRedirect({ postLogoutRedirectUri: '/' });
+    this.msalService.logoutRedirect({ postLogoutRedirectUri: environment.msal.postLogoutRedirectUri });
   }
 }
