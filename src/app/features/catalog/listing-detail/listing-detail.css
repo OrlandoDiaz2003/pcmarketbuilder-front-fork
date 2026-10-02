@@ -13,10 +13,6 @@
   font-size: 0.9rem;
 }
 
-.error {
-  color: var(--danger);
-}
-
 .detail-page {
   max-width: 1000px;
   margin: 0 auto;

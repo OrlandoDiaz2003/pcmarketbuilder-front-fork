@@ -19,10 +19,6 @@
   cursor: default;
 }
 
-.error {
-  color: #b91c1c;
-}
-
 .listings {
   width: 100%;
   border-collapse: collapse;

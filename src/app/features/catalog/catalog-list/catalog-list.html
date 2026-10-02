@@ -77,7 +77,10 @@
     @if (loading()) {
       <p>Cargando publicaciones...</p>
     } @else if (error()) {
-      <p class="error">{{ error() }}</p>
+      <p class="error">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        {{ error() }}
+      </p>
     } @else {
       <div class="grid">
         @for (listing of page().content; track listing.publicationId) {

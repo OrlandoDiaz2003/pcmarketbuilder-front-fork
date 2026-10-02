@@ -64,7 +64,8 @@ export class CatalogList implements OnInit {
         this.loading.set(false);
       },
       error: () => {
-        this.error.set('No se pudo cargar el catálogo. ¿Está el BFF corriendo en http://localhost:4000?');
+        // Mensaje genérico: el usuario final no sabe qué es el BFF ni su URL.
+        this.error.set('El servicio no está disponible en este momento. Inténtalo de nuevo más tarde.');
         this.loading.set(false);
       },
     });

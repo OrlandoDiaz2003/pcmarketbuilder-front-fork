@@ -4,7 +4,10 @@
 </div>
 
 @if (error()) {
-  <p class="error">{{ error() }}</p>
+  <p class="error">
+    <i class="fa-solid fa-triangle-exclamation"></i>
+    {{ error() }}
+  </p>
 }
 
 @if (loading()) {

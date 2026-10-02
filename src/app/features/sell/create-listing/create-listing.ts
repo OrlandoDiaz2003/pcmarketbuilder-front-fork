@@ -1,13 +1,30 @@
 import { DecimalPipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, DestroyRef, Injector, OnInit, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { catchError, combineLatest, debounceTime, distinctUntilChanged, map, of, switchMap, tap } from 'rxjs';
 import { CatalogApiService } from '../../../core/services/catalog-api.service';
 import { ProductApiService } from '../../../core/services/product-api.service';
 import { PublicationApiService } from '../../../core/services/publication-api.service';
-import { Category, CreateListingRequest, Grade, Product } from '../../../core/models/catalog.models';
+import { Category, CreateListingRequest, Grade, Product, SpringPage } from '../../../core/models/catalog.models';
 import { gradeLabel } from '../../../core/utils/labels';
+
+const EMPTY_PAGE: SpringPage<Product> = {
+  content: [],
+  totalElements: 0,
+  totalPages: 0,
+  size: 20,
+  number: 0,
+  numberOfElements: 0,
+  first: true,
+  last: true,
+  empty: true,
+};
+
+/** Espera a que el usuario termine de escribir antes de pedir productos. */
+const SEARCH_DEBOUNCE_MS = 300;
 
 @Component({
   selector: 'app-create-listing',
@@ -27,8 +44,18 @@ export class CreateListing implements OnInit {
   readonly grades: Grade[] = ['GRADE_A', 'GRADE_B', 'GRADE_C'];
   readonly gradeLabel = gradeLabel;
 
-  subcategoryId?: string;
-  productQuery = '';
+  readonly subcategoryId = signal<string | undefined>(undefined);
+  readonly productQuery = signal('');
+
+  /** True si hay algún criterio aplicado, para ofrecer limpiar la búsqueda. */
+  readonly hasSearchCriteria = computed(() => !!this.subcategoryId() || this.productQuery().trim() !== '');
+
+  /**
+   * True cuando el usuario escribió el título a mano. Mientras sea false, el título
+   * se autogenera desde el producto elegido; si el usuario lo edita, se respeta tal
+   * cual y cambiar de producto ya no lo pisa. Se reinicia al vaciar el campo.
+   */
+  readonly titleTouched = signal(false);
 
   form: Omit<CreateListingRequest, 'productId'> = {
     title: '',
@@ -37,6 +64,10 @@ export class CreateListing implements OnInit {
     grade: 'GRADE_A',
     usageTimeMonths: undefined,
   };
+
+  // Necesario para takeUntilDestroyed(): solo puede invocarse en un injection context.
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly injector = inject(Injector);
 
   constructor(
     private readonly catalogApi: CatalogApiService,
@@ -47,28 +78,64 @@ export class CreateListing implements OnInit {
 
   ngOnInit(): void {
     this.catalogApi.getCategories().subscribe({ next: (categories) => this.categories.set(categories) });
-    this.searchProducts();
+    this.watchSearchCriteria();
   }
 
-  searchProducts(): void {
-    this.searching.set(true);
-    this.productApi
-      .searchProducts({ subcategoryId: this.subcategoryId, q: this.productQuery, page: 1, limit: 20 })
-      .subscribe({
-        next: (page) => {
-          this.products.set(page.content);
-          this.searching.set(false);
-        },
-        error: () => {
-          this.error.set('No se pudo buscar productos.');
-          this.searching.set(false);
-        },
+  /**
+   * El listado de productos se recalcula solo: la subcategoría se aplica al instante
+   * y el texto se agrupa con debounce para no pedir en cada tecla.
+   * `switchMap` cancela la petición anterior si llega una nueva, así una respuesta
+   * lenta nunca pisa resultados más recientes.
+   */
+  private watchSearchCriteria(): void {
+    const subcategory$ = toObservable(this.subcategoryId, { injector: this.injector });
+    const query$ = toObservable(this.productQuery, { injector: this.injector });
+
+    combineLatest([
+      subcategory$,
+      // La carga inicial espera el mismo debounce; 300ms es imperceptible y evita
+      // complicar el flujo con emissions manuales.
+      query$.pipe(debounceTime(SEARCH_DEBOUNCE_MS)),
+    ])
+      .pipe(
+        map(([subcategoryId, q]) => [subcategoryId, q.trim()] as const),
+        distinctUntilChanged(
+          (a, b) => a[0] === b[0] && a[1] === b[1],
+        ),
+        tap(() => {
+          this.searching.set(true);
+          this.error.set(null);
+        }),
+        switchMap(([subcategoryId, q]) =>
+          this.productApi.searchProducts({ subcategoryId, q: q || undefined, page: 1, limit: 20 }).pipe(
+            catchError(() => {
+              this.error.set('No se pudo buscar productos.');
+              return of(EMPTY_PAGE);
+            }),
+          ),
+        ),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((page) => {
+        this.products.set(page.content);
+        this.searching.set(false);
       });
+  }
+
+  clearSearch(): void {
+    this.subcategoryId.set(undefined);
+    this.productQuery.set('');
+  }
+
+  /** Marca que el título fue editado a mano, para dejar de autogenerarlo. */
+  onTitleInput(title: string): void {
+    this.form.title = title;
+    this.titleTouched.set(title.trim() !== '');
   }
 
   selectProduct(product: Product): void {
     this.selectedProduct.set(product);
-    if (!this.form.title) {
+    if (!this.titleTouched()) {
       this.form.title = `${product.brand} ${product.model}`;
     }
   }

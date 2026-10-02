@@ -116,6 +116,15 @@
   font: inherit;
 }
 
+.product-search input {
+  flex: 1;
+  min-width: 180px;
+}
+
+.product-search .btn {
+  white-space: nowrap;
+}
+
 .option-card {
   background-color: #ffffff;
   border: 1px solid var(--border-color);
@@ -200,7 +209,7 @@ form .btn {
   align-items: center;
   gap: 6px;
   margin: 0;
-  color: #b45309;
+  color: var(--accent);
   font-size: 0.85rem;
 }
 

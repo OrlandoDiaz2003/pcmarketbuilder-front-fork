@@ -3,7 +3,10 @@
 @if (loading()) {
   <p>Cargando...</p>
 } @else if (error()) {
-  <p class="error">{{ error() }}</p>
+  <p class="error">
+    <i class="fa-solid fa-triangle-exclamation"></i>
+    {{ error() }}
+  </p>
 } @else if (listing(); as item) {
   <div class="detail-page">
     <div class="product-main">

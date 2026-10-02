@@ -1,7 +1,10 @@
 @if (loading()) {
   <p>Cargando tu perfil...</p>
 } @else if (error()) {
-  <p class="error">{{ error() }}</p>
+  <p class="error">
+    <i class="fa-solid fa-triangle-exclamation"></i>
+    {{ error() }}
+  </p>
 } @else if (user(); as u) {
   <div class="profile-page">
 

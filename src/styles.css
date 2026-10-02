@@ -109,3 +109,28 @@ a {
   font-size: 0.85rem;
   margin-bottom: 1rem;
 }
+
+/* Mensaje de error centrado y discreto. Vive aquí (y no en cada componente) para que
+   catálogo, perfil, detalle y admin se vean iguales. Tono rosa suave en lugar de rojo
+   puro: sigue leyéndose como error pero convive con el fondo claro (#f8fafc). */
+.error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  max-width: 440px;
+  margin: 40px auto;
+  padding: 28px 24px;
+  text-align: center;
+  color: #9f1239;
+  background-color: #fff1f2;
+  border: 1px solid #fecdd3;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.error i {
+  font-size: 1.5rem;
+  color: #e11d48;
+}

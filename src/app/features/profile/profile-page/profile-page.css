@@ -3,10 +3,6 @@
   padding: 24px;
 }
 
-.error {
-  color: var(--danger);
-}
-
 .profile-page {
   max-width: 900px;
   margin: 0 auto;

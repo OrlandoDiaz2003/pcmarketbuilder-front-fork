@@ -35,7 +35,11 @@
 
         <div class="step-content">
           <div class="product-search">
-            <select [(ngModel)]="subcategoryId">
+            <select
+              [ngModel]="subcategoryId()"
+              (ngModelChange)="subcategoryId.set($event)"
+              aria-label="Subcategoría"
+            >
               <option [ngValue]="undefined">Todas las subcategorías</option>
               @for (category of categories(); track category.categoryId) {
                 @for (sub of category.subcategories; track sub.subcategoryId) {
@@ -44,16 +48,21 @@
               }
             </select>
             <input
-              type="text"
+              type="search"
               placeholder="Buscar por marca o modelo..."
-              [(ngModel)]="productQuery"
-              (keyup.enter)="searchProducts()"
+              [ngModel]="productQuery()"
+              (ngModelChange)="productQuery.set($event)"
+              aria-label="Buscar por marca o modelo"
             />
-            <button type="button" class="btn btn-primary" (click)="searchProducts()">Buscar</button>
+            @if (hasSearchCriteria()) {
+              <button type="button" class="btn btn-secondary" (click)="clearSearch()">
+                <i class="fa-solid fa-xmark"></i> Limpiar
+              </button>
+            }
           </div>
 
           @if (searching()) {
-            <p>Buscando...</p>
+            <p class="hint">Buscando...</p>
           } @else if (products().length > 0) {
             @for (product of products(); track product.productId) {
               <div
@@ -75,6 +84,11 @@
                 </div>
               </div>
             }
+          } @else {
+            <p class="hint">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              No hay productos que coincidan con la búsqueda.
+            </p>
           }
         </div>
       </div>
@@ -92,7 +106,16 @@
           <form (ngSubmit)="submit()">
             <label>
               Título
-              <input type="text" name="title" required [(ngModel)]="form.title" />
+              <input
+                type="text"
+                name="title"
+                required
+                [ngModel]="form.title"
+                (ngModelChange)="onTitleInput($event)"
+              />
+              @if (titleTouched()) {
+                <span class="hint"><i class="fa-solid fa-pen"></i> Título personalizado: no se sobrescribirá.</span>
+              }
             </label>
             <label>
               Descripción
