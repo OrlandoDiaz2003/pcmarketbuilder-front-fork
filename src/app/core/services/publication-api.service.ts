@@ -11,8 +11,8 @@ export class PublicationApiService {
   constructor(private readonly http: HttpClient) {}
 
   createListing(body: CreateListingRequest): Observable<Publication> {
-    // X-User-Id/X-User-Role los agrega identityHeadersInterceptor con el rol
-    // real de los claims de Entra ID (ya configurados los 3 app roles).
+    // La identidad (X-User-Id/X-User-Role) la deriva el BFF del Bearer token
+    // que agrega MsalInterceptor; el cliente no la manda.
     return this.http.post<Publication>(`${this.baseUrl}/listings`, body);
   }
 }

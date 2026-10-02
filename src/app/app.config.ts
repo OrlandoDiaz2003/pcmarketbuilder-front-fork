@@ -14,13 +14,16 @@ import {
 import { routes } from './app.routes';
 import { AuthService } from './core/auth/auth.service';
 import { MSALGuardConfigFactory, MSALInstanceFactory, MSALInterceptorConfigFactory } from './core/auth/msal.factory';
-import { identityHeadersInterceptor } from './core/interceptors/identity-headers.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
-    provideHttpClient(withInterceptors([identityHeadersInterceptor]), withInterceptorsFromDi()),
+    // La identidad viaja en el Bearer token: el BFF lo valida (JWKS) y deriva
+    // los headers X-User-* que consumen los microservicios. Por eso ya no se
+    // manda identityHeadersInterceptor: sería un puente que el cliente podría
+    // falsear y además ocultaría si el token real está fallando.
+    provideHttpClient(withInterceptorsFromDi()),
     { provide: HTTP_INTERCEPTORS, useClass: MsalInterceptor, multi: true },
     { provide: MSAL_INSTANCE, useFactory: MSALInstanceFactory },
     { provide: MSAL_GUARD_CONFIG, useFactory: MSALGuardConfigFactory },
