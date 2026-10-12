@@ -26,6 +26,11 @@ const EMPTY_PAGE: SpringPage<Product> = {
 /** Espera a que el usuario termine de escribir antes de pedir productos. */
 const SEARCH_DEBOUNCE_MS = 300;
 
+/** Tipos que acepta el bucket y el backend (S3Service.ALLOWED_CONTENT_TYPES). */
+const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/avif'];
+const MAX_FILES = 5;
+const MAX_FILE_SIZE_MB = 5;
+
 @Component({
   selector: 'app-create-listing',
   imports: [FormsModule, DecimalPipe],
@@ -43,6 +48,13 @@ export class CreateListing implements OnInit, OnDestroy {
   readonly selectedFiles = signal<File[]>([]);
   readonly filePreviews = signal<{ file: File; previewUrl: string }[]>([]);
   readonly uploadProgress = signal<string | null>(null);
+  /** true mientras se arrastra un archivo sobre la zona de drop. */
+  readonly isDragging = signal(false);
+  /** Error de validación de las fotos (tipo, tamaño o cantidad). */
+  readonly photoError = signal<string | null>(null);
+
+  readonly MAX_FILES = MAX_FILES;
+  readonly MAX_FILE_SIZE_MB = MAX_FILE_SIZE_MB;
 
   readonly grades: Grade[] = ['GRADE_A', 'GRADE_B', 'GRADE_C'];
   readonly gradeLabel = gradeLabel;
@@ -146,18 +158,77 @@ export class CreateListing implements OnInit, OnDestroy {
   onFilesSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (!input.files || input.files.length === 0) return;
-    const newFiles = Array.from(input.files);
+    this.addFiles(Array.from(input.files));
+    input.value = '';
+  }
+
+  // --- Drag & drop ---
+
+  onDragOver(event: DragEvent): void {
+    // Sin preventDefault el navegador abre el archivo en vez de soltarlo.
+    event.preventDefault();
+    this.isDragging.set(true);
+  }
+
+  onDragLeave(event: DragEvent): void {
+    event.preventDefault();
+    this.isDragging.set(false);
+  }
+
+  onDrop(event: DragEvent): void {
+    event.preventDefault();
+    this.isDragging.set(false);
+    const dropped = event.dataTransfer?.files;
+    if (dropped && dropped.length > 0) this.addFiles(Array.from(dropped));
+  }
+
+  /**
+   * Valida y agrega archivos. Descarta los inválidos y avisa por qué, en vez de
+   * fallar más tarde en el backend con un 400 que el usuario no entiende.
+   */
+  private addFiles(incoming: File[]): void {
     const existing = this.selectedFiles();
-    const updated = [...existing, ...newFiles];
+    const accepted: File[] = [];
+    const rejected: string[] = [];
+
+    for (const file of incoming) {
+      if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+        rejected.push(`${file.name} (tipo no permitido)`);
+        continue;
+      }
+      if (file.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
+        rejected.push(`${file.name} (supera ${MAX_FILE_SIZE_MB} MB)`);
+        continue;
+      }
+      accepted.push(file);
+    }
+
+    const updated = [...existing, ...accepted];
+    const overflow = updated.length - MAX_FILES;
+    if (overflow > 0) {
+      rejected.push(`${overflow} foto(s) de más: el máximo es ${MAX_FILES}`);
+    }
+
+    this.selectedFiles.set(updated.slice(0, MAX_FILES));
+    this.updatePreviews(updated.slice(0, MAX_FILES));
+    this.photoError.set(rejected.length > 0 ? rejected.join(' · ') : null);
+  }
+
+  /** Mueve la foto de `index` al principio: el primer archivo es la portada. */
+  makePrimary(index: number): void {
+    const updated = [...this.selectedFiles()];
+    if (index <= 0 || index >= updated.length) return;
+    const [file] = updated.splice(index, 1);
+    updated.unshift(file);
     this.selectedFiles.set(updated);
     this.updatePreviews(updated);
-    input.value = '';
   }
 
   removeFile(index: number): void {
     const updated = this.selectedFiles().filter((_, i) => i !== index);
     this.selectedFiles.set(updated);
     this.updatePreviews(updated);
+    if (updated.length <= MAX_FILES) this.photoError.set(null);
   }
 
   private updatePreviews(files: File[]): void {

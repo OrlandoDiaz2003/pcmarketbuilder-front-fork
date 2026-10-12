@@ -93,12 +93,92 @@
         </div>
       </div>
 
-      <!-- PASO 2: DETALLES -->
+      <!-- PASO 2: FOTOS -->
       <div class="category-step selected">
         <div class="step-header" style="cursor: default">
           <div class="step-header-left">
             <span class="step-number">2</span>
-            <span class="step-title">2. Detalles de la publicación</span>
+            <span class="step-title">2. Fotos de la pieza</span>
+          </div>
+          <div class="selected-summary">
+            <span>{{ selectedFiles().length }} de {{ MAX_FILES }}</span>
+          </div>
+        </div>
+
+        <div class="step-content">
+          <div
+            class="photo-dropzone"
+            [class.dragging]="isDragging()"
+            (dragover)="onDragOver($event)"
+            (dragleave)="onDragLeave($event)"
+            (drop)="onDrop($event)"
+          >
+            <input
+              type="file"
+              id="photo-input"
+              multiple
+              accept="image/jpeg,image/png,image/webp,image/gif,image/avif"
+              (change)="onFilesSelected($event)"
+              style="display: none"
+            />
+
+            <i class="fa-solid fa-cloud-arrow-up dropzone-icon"></i>
+            <p class="dropzone-title">Arrastrá tus fotos acá</p>
+            <p class="dropzone-sub">
+              JPG, PNG, WEBP, GIF o AVIF · hasta {{ MAX_FILES }} fotos · {{ MAX_FILE_SIZE_MB }} MB c/u
+            </p>
+            <label for="photo-input" class="btn btn-secondary upload-btn">
+              <i class="fa-solid fa-folder-open"></i> Elegir desde el equipo
+            </label>
+            @if (photoError()) {
+              <p class="form-error dropzone-error">
+                <i class="fa-solid fa-triangle-exclamation"></i> {{ photoError() }}
+              </p>
+            }
+          </div>
+
+          @if (filePreviews().length > 0) {
+            <div class="previews-grid">
+              @for (preview of filePreviews(); track preview.previewUrl; let i = $index) {
+                <div class="preview-card" [class.primary]="i === 0">
+                  <img [src]="preview.previewUrl" [alt]="preview.file.name" />
+                  @if (i === 0) {
+                    <span class="primary-badge">Portada</span>
+                  } @else {
+                    <button
+                      type="button"
+                      class="make-primary-btn"
+                      (click)="makePrimary(i)"
+                      title="Usar como portada"
+                    >
+                      <i class="fa-solid fa-star"></i>
+                    </button>
+                  }
+                  <button type="button" class="remove-photo-btn" (click)="removeFile(i)" title="Quitar foto">
+                    <i class="fa-solid fa-xmark"></i>
+                  </button>
+                </div>
+              }
+            </div>
+            <p class="hint">
+              <i class="fa-solid fa-circle-info"></i>
+              La foto con borde verde es la portada. Podés cambiarla con la estrella.
+            </p>
+          } @else {
+            <p class="hint photos-empty-hint">
+              <i class="fa-solid fa-image"></i>
+              Sin fotos la publicación se publicará igual, pero se verá menosriple en el catálogo.
+            </p>
+          }
+        </div>
+      </div>
+
+      <!-- PASO 3: DETALLES -->
+      <div class="category-step selected">
+        <div class="step-header" style="cursor: default">
+          <div class="step-header-left">
+            <span class="step-number">3</span>
+            <span class="step-title">3. Detalles de la publicación</span>
           </div>
         </div>
 
@@ -137,46 +217,6 @@
               Meses de uso
               <input type="number" name="usageTimeMonths" min="0" [(ngModel)]="form.usageTimeMonths" />
             </label>
-
-            <!-- SELECCIÓN DE FOTOS -->
-            <div class="photos-section">
-              <label class="photos-label">
-                <span>Fotos de la pieza</span>
-                <span class="photos-sublabel">Formatos: JPG, PNG, WEBP. La primera foto será la portada.</span>
-              </label>
-              <div class="photo-upload-box">
-                <input
-                  type="file"
-                  id="photo-input"
-                  multiple
-                  accept="image/jpeg,image/png,image/webp,image/gif,image/avif"
-                  (change)="onFilesSelected($event)"
-                  style="display: none"
-                />
-                <label for="photo-input" class="btn btn-secondary upload-btn">
-                  <i class="fa-solid fa-cloud-arrow-up"></i> Elegir fotos
-                </label>
-                @if (selectedFiles().length > 0) {
-                  <span class="file-count">{{ selectedFiles().length }} foto(s) seleccionada(s)</span>
-                }
-              </div>
-
-              @if (filePreviews().length > 0) {
-                <div class="previews-grid">
-                  @for (preview of filePreviews(); track preview.previewUrl; let i = $index) {
-                    <div class="preview-card" [class.primary]="i === 0">
-                      <img [src]="preview.previewUrl" [alt]="preview.file.name" />
-                      @if (i === 0) {
-                        <span class="primary-badge">Portada</span>
-                      }
-                      <button type="button" class="remove-photo-btn" (click)="removeFile(i)" title="Quitar foto">
-                        <i class="fa-solid fa-xmark"></i>
-                      </button>
-                    </div>
-                  }
-                </div>
-              }
-            </div>
 
             @if (uploadProgress()) {
               <div class="upload-progress-alert">
@@ -222,7 +262,11 @@
       <li class="summary-item">
         <span>Fotos:</span>
         <span class="item-name" [class.pending]="selectedFiles().length === 0">
-          {{ selectedFiles().length > 0 ? selectedFiles().length + ' foto(s)' : 'Sin fotos' }}
+          @if (selectedFiles().length > 0) {
+            {{ selectedFiles().length }} de {{ MAX_FILES }}
+          } @else {
+            Sin fotos
+          }
         </span>
       </li>
     </ul>

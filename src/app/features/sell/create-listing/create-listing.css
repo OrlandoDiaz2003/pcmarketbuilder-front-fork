@@ -286,34 +286,48 @@ form .btn {
 }
 
 /* --- FOTOS DE LA PIEZA --- */
-.photos-section {
+.photo-dropzone {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 10px;
-  padding: 12px 0;
-  border-top: 1px dashed var(--border-color);
-  border-bottom: 1px dashed var(--border-color);
+  padding: 44px 24px;
+  border: 2px dashed var(--border-color);
+  border-radius: 10px;
+  background-color: var(--bg-soft, #f8fafc);
+  text-align: center;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
 }
 
-.photos-label {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
+.photo-dropzone.dragging {
+  border-color: var(--primary);
+  background-color: #eff6ff;
+}
+
+.dropzone-icon {
+  font-size: 2.4rem;
+  color: var(--primary);
+}
+
+.dropzone-title {
+  margin: 0;
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: 1.05rem;
   color: var(--text-dark);
 }
 
-.photos-sublabel {
-  font-size: 0.78rem;
-  font-weight: normal;
+.dropzone-sub {
+  margin: 0;
+  font-size: 0.82rem;
   color: var(--text-muted);
 }
 
-.photo-upload-box {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+.dropzone-error {
+  margin: 0;
+}
+
+.photos-empty-hint {
+  text-align: center;
 }
 
 .upload-btn {
@@ -332,22 +346,22 @@ form .btn {
 
 .previews-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
-  gap: 10px;
-  margin-top: 6px;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 14px;
+  margin-top: 14px;
 }
 
 .preview-card {
   position: relative;
   aspect-ratio: 1;
-  border-radius: 6px;
+  border-radius: 8px;
   overflow: hidden;
   border: 1px solid var(--border-color);
   background-color: #000000;
 }
 
 .preview-card.primary {
-  border: 2px solid var(--primary);
+  border: 3px solid var(--primary);
 }
 
 .preview-card img {
@@ -359,23 +373,24 @@ form .btn {
 
 .primary-badge {
   position: absolute;
-  bottom: 4px;
-  left: 4px;
+  bottom: 6px;
+  left: 6px;
   background-color: var(--primary);
   color: #ffffff;
-  font-size: 0.65rem;
+  font-size: 0.7rem;
   font-weight: 700;
-  padding: 2px 5px;
-  border-radius: 3px;
+  padding: 3px 7px;
+  border-radius: 4px;
   text-transform: uppercase;
 }
 
-.remove-photo-btn {
+/* Estrella para elegir otra foto como portada. */
+.make-primary-btn {
   position: absolute;
-  top: 4px;
-  right: 4px;
-  width: 22px;
-  height: 22px;
+  bottom: 6px;
+  right: 6px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
   background-color: rgba(0, 0, 0, 0.65);
   color: #ffffff;
@@ -384,7 +399,30 @@ form .btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.7rem;
+  font-size: 0.72rem;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.make-primary-btn:hover {
+  background-color: var(--primary);
+  color: #ffffff;
+}
+
+.remove-photo-btn {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.65);
+  color: #ffffff;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
   transition: background-color 0.15s ease;
 }
 
