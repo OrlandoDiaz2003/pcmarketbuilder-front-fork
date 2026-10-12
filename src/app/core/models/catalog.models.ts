@@ -8,6 +8,17 @@ export interface PublicationImage {
   isPrimary: boolean;
 }
 
+export interface PresignedUrlResponse {
+  uploadUrl: string;
+  fileUrl: string;
+  objectKey: string;
+}
+
+export interface AddImageRequest {
+  imageUrl: string;
+  isPrimary?: boolean;
+}
+
 export interface SubcategoryRef {
   subcategoryId: string;
   name: string;

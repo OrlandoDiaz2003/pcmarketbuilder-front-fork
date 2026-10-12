@@ -1,10 +1,10 @@
 import { DecimalPipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, DestroyRef, Injector, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, Injector, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { catchError, combineLatest, debounceTime, distinctUntilChanged, map, of, switchMap, tap } from 'rxjs';
+import { catchError, combineLatest, debounceTime, distinctUntilChanged, firstValueFrom, map, of, switchMap, tap } from 'rxjs';
 import { CatalogApiService } from '../../../core/services/catalog-api.service';
 import { ProductApiService } from '../../../core/services/product-api.service';
 import { PublicationApiService } from '../../../core/services/publication-api.service';
@@ -33,13 +33,16 @@ const SEARCH_DEBOUNCE_MS = 300;
   styleUrl: './create-listing.css',
 })
 
-export class CreateListing implements OnInit {
+export class CreateListing implements OnInit, OnDestroy {
   readonly categories = signal<Category[]>([]);
   readonly products = signal<Product[]>([]);
   readonly searching = signal(false);
   readonly selectedProduct = signal<Product | null>(null);
   readonly submitting = signal(false);
   readonly error = signal<string | null>(null);
+  readonly selectedFiles = signal<File[]>([]);
+  readonly filePreviews = signal<{ file: File; previewUrl: string }[]>([]);
+  readonly uploadProgress = signal<string | null>(null);
 
   readonly grades: Grade[] = ['GRADE_A', 'GRADE_B', 'GRADE_C'];
   readonly gradeLabel = gradeLabel;
@@ -140,6 +143,37 @@ export class CreateListing implements OnInit {
     }
   }
 
+  onFilesSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+    const newFiles = Array.from(input.files);
+    const existing = this.selectedFiles();
+    const updated = [...existing, ...newFiles];
+    this.selectedFiles.set(updated);
+    this.updatePreviews(updated);
+    input.value = '';
+  }
+
+  removeFile(index: number): void {
+    const updated = this.selectedFiles().filter((_, i) => i !== index);
+    this.selectedFiles.set(updated);
+    this.updatePreviews(updated);
+  }
+
+  private updatePreviews(files: File[]): void {
+    this.filePreviews().forEach((p) => URL.revokeObjectURL(p.previewUrl));
+    this.filePreviews.set(
+      files.map((file) => ({
+        file,
+        previewUrl: URL.createObjectURL(file),
+      })),
+    );
+  }
+
+  ngOnDestroy(): void {
+    this.filePreviews().forEach((p) => URL.revokeObjectURL(p.previewUrl));
+  }
+
   submit(): void {
     const product = this.selectedProduct();
     if (!product) {
@@ -148,6 +182,8 @@ export class CreateListing implements OnInit {
     }
     this.submitting.set(true);
     this.error.set(null);
+    this.uploadProgress.set('Creando publicación...');
+
     this.publicationApi
       .createListing({
         productId: product.productId,
@@ -158,8 +194,30 @@ export class CreateListing implements OnInit {
         usageTimeMonths: this.form.usageTimeMonths || undefined,
       })
       .subscribe({
-        next: (publication) => {
+        next: async (publication) => {
+          const files = this.selectedFiles();
+          if (files.length > 0) {
+            try {
+              for (let i = 0; i < files.length; i++) {
+                this.uploadProgress.set(`Subiendo foto ${i + 1} de ${files.length}...`);
+                const file = files[i];
+                const presigned = await firstValueFrom(
+                  this.publicationApi.getPresignedUrl(publication.publicationId, file.name, file.type),
+                );
+                await this.publicationApi.uploadImageToS3(presigned.uploadUrl, file);
+                await firstValueFrom(
+                  this.publicationApi.registerImage(publication.publicationId, presigned.fileUrl, i === 0),
+                );
+              }
+            } catch (uploadErr) {
+              console.error('Error al subir imágenes a S3', uploadErr);
+              // La publicación fue creada, redirigimos pero logueamos
+              this.router.navigate(['/listings', publication.publicationId]);
+              return;
+            }
+          }
           this.submitting.set(false);
+          this.uploadProgress.set(null);
           this.router.navigate(['/listings', publication.publicationId]);
         },
         error: (err: HttpErrorResponse) => {
@@ -167,6 +225,7 @@ export class CreateListing implements OnInit {
           const upstreamMessage = typeof err.error?.message === 'string' ? err.error.message : null;
           this.error.set(upstreamMessage ?? `No se pudo crear la publicación (HTTP ${err.status}).`);
           this.submitting.set(false);
+          this.uploadProgress.set(null);
         },
       });
   }

@@ -138,6 +138,52 @@
               <input type="number" name="usageTimeMonths" min="0" [(ngModel)]="form.usageTimeMonths" />
             </label>
 
+            <!-- SELECCIÓN DE FOTOS -->
+            <div class="photos-section">
+              <label class="photos-label">
+                <span>Fotos de la pieza</span>
+                <span class="photos-sublabel">Formatos: JPG, PNG, WEBP. La primera foto será la portada.</span>
+              </label>
+              <div class="photo-upload-box">
+                <input
+                  type="file"
+                  id="photo-input"
+                  multiple
+                  accept="image/jpeg,image/png,image/webp,image/gif,image/avif"
+                  (change)="onFilesSelected($event)"
+                  style="display: none"
+                />
+                <label for="photo-input" class="btn btn-secondary upload-btn">
+                  <i class="fa-solid fa-cloud-arrow-up"></i> Elegir fotos
+                </label>
+                @if (selectedFiles().length > 0) {
+                  <span class="file-count">{{ selectedFiles().length }} foto(s) seleccionada(s)</span>
+                }
+              </div>
+
+              @if (filePreviews().length > 0) {
+                <div class="previews-grid">
+                  @for (preview of filePreviews(); track preview.previewUrl; let i = $index) {
+                    <div class="preview-card" [class.primary]="i === 0">
+                      <img [src]="preview.previewUrl" [alt]="preview.file.name" />
+                      @if (i === 0) {
+                        <span class="primary-badge">Portada</span>
+                      }
+                      <button type="button" class="remove-photo-btn" (click)="removeFile(i)" title="Quitar foto">
+                        <i class="fa-solid fa-xmark"></i>
+                      </button>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+
+            @if (uploadProgress()) {
+              <div class="upload-progress-alert">
+                <i class="fa-solid fa-spinner fa-spin"></i> {{ uploadProgress() }}
+              </div>
+            }
+
             <button type="submit" class="btn btn-primary" [disabled]="submitting() || !selectedProduct()">
               <i class="fa-solid fa-wrench"></i>
               {{ submitting() ? 'Publicando...' : 'Publicar' }}
@@ -172,6 +218,12 @@
       <li class="summary-item">
         <span>Estado:</span>
         <span class="item-name">{{ gradeLabel(form.grade) }}</span>
+      </li>
+      <li class="summary-item">
+        <span>Fotos:</span>
+        <span class="item-name" [class.pending]="selectedFiles().length === 0">
+          {{ selectedFiles().length > 0 ? selectedFiles().length + ' foto(s)' : 'Sin fotos' }}
+        </span>
       </li>
     </ul>
 
