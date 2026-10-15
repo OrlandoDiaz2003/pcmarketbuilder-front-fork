@@ -75,6 +75,11 @@ export function MSALInterceptorConfigFactory(): MsalInterceptorConfiguration {
     { httpMethod: 'GET', scopes: null },
   ]);
 
+  // Compras, bandeja del taller e informes PDF: siempre con identidad, en todos los métodos.
+  for (const path of ['orders', 'inspections', 'reports']) {
+    protectedResourceMap.set(`${environment.bffBaseUrl}/${path}*`, [bffScope]);
+  }
+
   return {
     interactionType: InteractionType.Redirect,
     protectedResourceMap,

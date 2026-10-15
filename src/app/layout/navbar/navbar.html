@@ -7,11 +7,15 @@
   <nav class="links">
     <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Catálogo</a>
     @if (auth.isAuthenticated) {
+      <a routerLink="/orders" routerLinkActive="active">Mis compras</a>
       <a routerLink="/profile" routerLinkActive="active">Mi perfil</a>
     }
     @if (auth.isAdmin) {
       <a routerLink="/admin/publications" routerLinkActive="active" class="admin-link">
         <i class="fa-solid fa-shield-halved"></i> Admin
+      </a>
+      <a routerLink="/admin/inspections" routerLinkActive="active" class="admin-link">
+        <i class="fa-solid fa-clipboard-check"></i> Inspecciones
       </a>
     }
   </nav>

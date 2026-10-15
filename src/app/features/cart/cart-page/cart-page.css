@@ -108,8 +108,48 @@
   font-weight: 700;
 }
 
-.checkout {
-  background-color: #9ca3af;
-  color: #fff;
-  cursor: not-allowed;
+.notify {
+  margin-top: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.notify label {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.notify input {
+  max-width: 420px;
+  padding: 9px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  font: inherit;
+  background-color: var(--bg-card);
+}
+
+.notify input:focus {
+  outline: 2px solid var(--accent-light);
+  border-color: var(--accent);
+}
+
+.notify input.invalid {
+  border-color: #fca5a5;
+  background-color: #fef2f2;
+}
+
+.hint {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+.hint-error {
+  color: var(--danger);
+}
+
+.form-error {
+  margin-top: 1rem;
+  margin-bottom: 0;
 }

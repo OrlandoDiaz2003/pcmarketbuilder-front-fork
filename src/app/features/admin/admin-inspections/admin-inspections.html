@@ -1,0 +1,189 @@
+<div class="header">
+  <h1>Administración · Inspecciones</h1>
+  <button type="button" class="btn btn-outline" (click)="load()" [disabled]="loading()">
+    <i class="fa-solid fa-rotate"></i> Actualizar
+  </button>
+</div>
+
+@if (success()) {
+  <p class="success"><i class="fa-solid fa-circle-check"></i> {{ success() }}</p>
+}
+
+@if (error()) {
+  <p class="error">
+    <i class="fa-solid fa-triangle-exclamation"></i>
+    {{ error() }}
+  </p>
+} @else if (loading()) {
+  <p class="muted">Cargando bandeja...</p>
+} @else if (inspections().length === 0) {
+  <p class="muted">No hay piezas pendientes de revisión. Las compras nuevas aparecen aquí automáticamente.</p>
+} @else {
+  <div class="layout">
+    <!-- BANDEJA -->
+    <ul class="inbox">
+      @for (inspection of inspections(); track inspection.id) {
+        <li>
+          <button
+            type="button"
+            class="card"
+            [class.active]="inspection.id === selectedId()"
+            (click)="select(inspection)"
+          >
+            <span class="thumb">
+              @if (primaryImage(inspection); as src) {
+                <img [src]="src" [alt]="inspection.description ?? 'Pieza'" />
+              } @else {
+                <i class="fa-solid fa-microchip"></i>
+              }
+            </span>
+            <span class="card-info">
+              <strong>{{ inspection.listing?.title ?? inspection.description ?? 'Pieza' }}</strong>
+              @if (inspection.listing?.product; as product) {
+                <span class="meta">{{ product.brand }} {{ product.model }}</span>
+              }
+              <span class="meta">Comprada el {{ inspection.createdAt | date: 'dd-MM-yyyy HH:mm' }}</span>
+              <span class="meta"><i class="fa-regular fa-envelope"></i> {{ inspection.buyerEmail ?? 'sin correo' }}</span>
+            </span>
+          </button>
+        </li>
+      }
+    </ul>
+
+    <!-- REVISIÓN -->
+    <section class="review">
+      @if (selected(); as inspection) {
+        <h2>{{ inspection.listing?.title ?? inspection.description ?? 'Pieza' }}</h2>
+
+        @if (inspection.listing; as listing) {
+          <div class="gallery">
+            <div class="main-photo">
+              @if (images()[selectedImageIndex()]; as image) {
+                <img [src]="image.imageUrl" [alt]="listing.title" />
+              } @else {
+                <i class="fa-solid fa-microchip"></i>
+                <span>Sin fotos</span>
+              }
+            </div>
+            @if (images().length > 1) {
+              <div class="thumbs">
+                @for (image of images(); track image.imageId; let i = $index) {
+                  <button
+                    type="button"
+                    class="thumb-btn"
+                    [class.active]="i === selectedImageIndex()"
+                    (click)="selectedImageIndex.set(i)"
+                    [attr.aria-label]="'Foto ' + (i + 1)"
+                  >
+                    <img [src]="image.imageUrl" alt="" />
+                  </button>
+                }
+              </div>
+            }
+          </div>
+
+          <dl class="details">
+            @if (listing.product; as product) {
+              <dt>Producto</dt>
+              <dd>{{ product.brand }} {{ product.model }}</dd>
+            }
+            <dt>Grado declarado</dt>
+            <dd>{{ gradeLabel(listing.grade) }}</dd>
+            @if (listing.usageTimeMonths !== null) {
+              <dt>Tiempo de uso</dt>
+              <dd>{{ listing.usageTimeMonths }} meses</dd>
+            }
+            <dt>Vendedor</dt>
+            <dd>{{ listing.seller?.username ?? 'Desconocido' }}</dd>
+            <dt>Precio</dt>
+            <dd>{{ listing.price | number: '1.0-0' }} CLP</dd>
+            @for (spec of specs(); track spec[0]) {
+              <dt>{{ spec[0] }}</dt>
+              <dd>{{ spec[1] }}</dd>
+            }
+          </dl>
+
+          @if (listing.description) {
+            <p class="description">{{ listing.description }}</p>
+          }
+        } @else {
+          <p class="muted">No se pudo obtener la publicación original (puede haber sido eliminada).</p>
+        }
+
+        <hr />
+
+        <h3>Informe de revisión</h3>
+        <p class="muted small">Al enviarlo, el comprador recibe un correo de confirmación y otro con el informe en PDF.</p>
+
+        @if (formError()) {
+          <p class="form-error">{{ formError() }}</p>
+        }
+
+        <form class="report-form" (ngSubmit)="submit()">
+          <label for="maintenance-done">Mantenimiento realizado *</label>
+          <textarea
+            id="maintenance-done"
+            name="maintenanceDone"
+            rows="3"
+            maxlength="1000"
+            placeholder="Ej: Limpieza general, cambio de pasta térmica y prueba de estrés de 1 h"
+            [(ngModel)]="form.maintenanceDone"
+          ></textarea>
+
+          <div class="row">
+            <div>
+              <label for="maintenance-date">Fecha del mantenimiento</label>
+              <input id="maintenance-date" name="maintenanceDate" type="date" [(ngModel)]="form.maintenanceDate" />
+            </div>
+            <div>
+              <label for="result">Resultado</label>
+              <select id="result" name="result" [(ngModel)]="form.result">
+                <option value="PASSED">Aprobada (se envía)</option>
+                <option value="FAILED">Rechazada (no se envía)</option>
+              </select>
+            </div>
+          </div>
+
+          <label for="notes">Observaciones (opcional)</label>
+          <textarea id="notes" name="notes" rows="2" maxlength="1000" [(ngModel)]="form.notes"></textarea>
+
+          <div class="checks">
+            <div class="checks-header">
+              <span>Revisión por componente (opcional)</span>
+              <button type="button" class="btn btn-outline" (click)="addCheck()">
+                <i class="fa-solid fa-plus"></i> Agregar
+              </button>
+            </div>
+            @for (check of checks; track $index; let i = $index) {
+              <div class="check-row">
+                <input
+                  [name]="'component' + i"
+                  type="text"
+                  placeholder="Componente"
+                  maxlength="100"
+                  [(ngModel)]="check.component"
+                />
+                <select [name]="'result' + i" [(ngModel)]="check.result">
+                  <option value="OK">OK</option>
+                  <option value="WARNING">Advertencia</option>
+                  <option value="FAIL">Falla</option>
+                </select>
+                <input [name]="'note' + i" type="text" placeholder="Nota" maxlength="255" [(ngModel)]="check.note" />
+                <button type="button" class="btn btn-danger" (click)="removeCheck(i)" aria-label="Quitar">
+                  <i class="fa-solid fa-trash"></i>
+                </button>
+              </div>
+            }
+          </div>
+
+          <button type="submit" class="btn btn-primary submit" [disabled]="submitting()">
+            <i class="fa-solid fa-file-pdf"></i>
+            {{ submitting() ? 'Generando...' : 'Generar informe' }}
+          </button>
+        </form>
+      } @else {
+        <p class="muted placeholder">Elige una pieza de la bandeja para ver sus fotos y completar el informe.</p>
+      }
+    </section>
+  </div>
+}

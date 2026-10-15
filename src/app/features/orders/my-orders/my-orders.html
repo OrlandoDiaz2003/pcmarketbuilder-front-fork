@@ -1,0 +1,70 @@
+<div class="orders-page">
+  <div class="header">
+    <h1>Mis compras</h1>
+    <button type="button" class="btn btn-outline" (click)="load()" [disabled]="loading()">
+      <i class="fa-solid fa-rotate"></i> Actualizar
+    </button>
+  </div>
+
+  @if (justPurchased) {
+    <p class="success">
+      <i class="fa-solid fa-circle-check"></i>
+      ¡Compra realizada! Tu pieza pasará por una revisión técnica en el taller antes de enviarse. Te avisaremos por
+      correo cuando termine y te enviaremos el informe.
+    </p>
+  }
+
+  @if (notice()) {
+    <p class="notice"><i class="fa-solid fa-circle-info"></i> {{ notice() }}</p>
+  }
+
+  @if (error()) {
+    <p class="error">
+      <i class="fa-solid fa-triangle-exclamation"></i>
+      {{ error() }}
+    </p>
+  } @else if (loading()) {
+    <p class="muted">Cargando tus compras...</p>
+  } @else if (orders().length === 0) {
+    <p class="muted">Todavía no has comprado nada. <a routerLink="/">Ver catálogo</a>.</p>
+  } @else {
+    @for (order of orders(); track order.orderId) {
+      <article class="order">
+        <header>
+          <div>
+            <strong>Compra del {{ order.createdAt | date: 'dd-MM-yyyy HH:mm' }}</strong>
+            @if (order.buyerEmail) {
+              <span class="email"><i class="fa-regular fa-envelope"></i> {{ order.buyerEmail }}</span>
+            }
+          </div>
+          <span class="total">{{ order.totalAmount | number: '1.0-0' }} CLP</span>
+        </header>
+
+        <ul class="items">
+          @for (item of order.items; track item.orderItemId) {
+            <li>
+              <div class="item-info">
+                <a [routerLink]="['/listings', item.publicationId]">{{ item.description ?? 'Pieza' }}</a>
+                <span class="price">{{ item.price | number: '1.0-0' }} CLP</span>
+              </div>
+              <div class="item-status">
+                <span class="status" [attr.data-status]="statusOf(item)">{{ inspectionLabel(item.inspection?.status) }}</span>
+                @if (hasReport(item)) {
+                  <button
+                    type="button"
+                    class="btn btn-secondary"
+                    [disabled]="downloadingId() === item.orderItemId"
+                    (click)="downloadReport(item)"
+                  >
+                    <i class="fa-solid fa-file-pdf"></i>
+                    {{ downloadingId() === item.orderItemId ? 'Descargando...' : 'Descargar informe' }}
+                  </button>
+                }
+              </div>
+            </li>
+          }
+        </ul>
+      </article>
+    }
+  }
+</div>

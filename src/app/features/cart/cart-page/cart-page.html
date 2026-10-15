@@ -26,10 +26,39 @@
       }
     </ul>
 
+    <section class="notify">
+      <label for="notify-email">Ingresa un correo al que quieras recibir la información</label>
+      <input
+        id="notify-email"
+        type="email"
+        name="email"
+        autocomplete="email"
+        placeholder="tucorreo@ejemplo.com"
+        [(ngModel)]="email"
+        (blur)="emailTouched.set(true)"
+        [class.invalid]="emailTouched() && !emailValid"
+      />
+      @if (emailTouched() && !emailValid) {
+        <p class="hint hint-error">Ingresa un correo válido.</p>
+      } @else {
+        <p class="hint">Te enviaremos la confirmación y el informe técnico de tu pieza a este correo.</p>
+      }
+    </section>
+
+    @if (error()) {
+      <p class="form-error">{{ error() }}</p>
+    }
+
     <div class="summary">
       <span class="total">Total: {{ cart.total() | number: '1.0-0' }} CLP</span>
-      <button type="button" class="btn checkout" disabled title="El checkout todavía no está disponible">
-        Finalizar compra (próximamente)
+      <button type="button" class="btn btn-primary checkout" [disabled]="submitting()" (click)="checkout()">
+        @if (submitting()) {
+          Procesando compra...
+        } @else if (!auth.isAuthenticated) {
+          Inicia sesión para comprar
+        } @else {
+          <i class="fa-solid fa-bag-shopping"></i> Comprar
+        }
       </button>
     </div>
   }

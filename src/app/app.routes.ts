@@ -22,6 +22,11 @@ export const routes: Routes = [
     loadComponent: () => import('./features/cart/cart-page/cart-page').then((m) => m.CartPage),
   },
   {
+    path: 'orders',
+    canActivate: [MsalGuard],
+    loadComponent: () => import('./features/orders/my-orders/my-orders').then((m) => m.MyOrders),
+  },
+  {
     path: 'register',
     loadComponent: () => import('./features/auth/register/register').then((m) => m.Register),
   },
@@ -35,5 +40,11 @@ export const routes: Routes = [
     canActivate: [MsalGuard, adminGuard],
     loadComponent: () =>
       import('./features/admin/admin-publications/admin-publications').then((m) => m.AdminPublications),
+  },
+  {
+    path: 'admin/inspections',
+    canActivate: [MsalGuard, adminGuard],
+    loadComponent: () =>
+      import('./features/admin/admin-inspections/admin-inspections').then((m) => m.AdminInspections),
   },
 ];

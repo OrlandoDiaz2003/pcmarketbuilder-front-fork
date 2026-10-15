@@ -1,4 +1,5 @@
 import { Grade, PublicationStatus } from '../models/catalog.models';
+import { InspectionStatus } from '../models/order.models';
 
 const GRADE_LABELS: Record<Grade, string> = {
   GRADE_A: 'Grado A (Excelente)',
@@ -13,6 +14,18 @@ const STATUS_LABELS: Record<PublicationStatus, string> = {
   IN_INSPECTION: 'En inspección',
   WITHDRAWN: 'Retirada',
 };
+
+const INSPECTION_LABELS: Record<InspectionStatus, string> = {
+  PENDING: 'En espera de revisión',
+  IN_REVIEW: 'En revisión del taller',
+  PASSED: 'Aprobada: será enviada',
+  FAILED: 'Rechazada: no será enviada',
+};
+
+/** null = el taller todavía no registra la pieza (el aviso de pago sigue en camino). */
+export function inspectionLabel(status: InspectionStatus | null | undefined): string {
+  return status ? (INSPECTION_LABELS[status] ?? status) : INSPECTION_LABELS.PENDING;
+}
 
 export function gradeLabel(grade: Grade): string {
   return GRADE_LABELS[grade] ?? grade;
