@@ -13,6 +13,7 @@ import {
 
 import { routes } from './app.routes';
 import { AuthService } from './core/auth/auth.service';
+import { stripLogoutState } from './core/auth/clean-url';
 import { MSALGuardConfigFactory, MSALInstanceFactory, MSALInterceptorConfigFactory } from './core/auth/msal.factory';
 
 export const appConfig: ApplicationConfig = {
@@ -32,10 +33,11 @@ export const appConfig: ApplicationConfig = {
     MsalGuard,
     MsalBroadcastService,
     provideAppInitializer(() => {
+      stripLogoutState(); // antes de MSAL: ver clean-url.ts
       const msalService = inject(MsalService);
-      inject(AuthService); // fuerza la creación temprana para no perder el primer evento de login
+      const auth = inject(AuthService); // fuerza la creación temprana para no perder el primer evento de login
       return msalService.instance.initialize().then(() => {
-        msalService.handleRedirectObservable().subscribe();
+        msalService.handleRedirectObservable().subscribe({ error: (err) => auth.reportRedirectError(err) });
       });
     }),
   ],

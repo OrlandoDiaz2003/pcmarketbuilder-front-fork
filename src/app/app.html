@@ -1,4 +1,14 @@
 <app-navbar />
+@if (auth.loginError(); as message) {
+  <div class="auth-error" role="alert">
+    <i class="fa-solid fa-triangle-exclamation"></i>
+    <div>
+      <strong>No se pudo iniciar sesión.</strong>
+      <span>{{ message }}</span>
+    </div>
+    <button type="button" class="btn btn-outline" (click)="auth.dismissLoginError()">Cerrar</button>
+  </div>
+}
 <main class="page">
   <router-outlet />
 </main>

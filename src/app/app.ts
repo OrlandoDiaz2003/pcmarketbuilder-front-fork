@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { Navbar } from "./layout/navbar/navbar";
+import { AuthService } from './core/auth/auth.service';
+import { Navbar } from './layout/navbar/navbar';
 
 
 @Component({
@@ -9,4 +10,6 @@ import { Navbar } from "./layout/navbar/navbar";
   templateUrl: './app.html',
   styleUrl: './app.css',
 })
-export class App {}
+export class App {
+  readonly auth = inject(AuthService);
+}

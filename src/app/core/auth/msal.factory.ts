@@ -15,7 +15,15 @@ const { clientId, tenantId, redirectUri, postLogoutRedirectUri } = environment.m
  * `aud = api://<clientId>`; con scopes OIDC (openid/profile/email) el token
  * viene para Microsoft y el BFF lo rechaza al validar.
  */
-const bffScope = `api://${clientId}/access_as_user`;
+export const bffScope = `api://${clientId}/access_as_user`;
+
+/**
+ * Pedido de login interactivo. Incluye el scope del BFF para que el token ya salga con `aud = api://<clientId>`
+ * (con solo openid/profile el primer llamado protegido disparaba un segundo redirect para pedir ese scope).
+ */
+export const loginRequest = {
+  scopes: [bffScope, 'openid', 'profile', 'email'],
+};
 
 export function MSALInstanceFactory(): IPublicClientApplication {
   return new PublicClientApplication({
@@ -49,9 +57,7 @@ export function MSALInstanceFactory(): IPublicClientApplication {
 export function MSALGuardConfigFactory(): MsalGuardConfiguration {
   return {
     interactionType: InteractionType.Redirect,
-    authRequest: {
-      scopes: [bffScope, 'openid', 'profile', 'email'],
-    },
+    authRequest: loginRequest,
   };
 }
 
