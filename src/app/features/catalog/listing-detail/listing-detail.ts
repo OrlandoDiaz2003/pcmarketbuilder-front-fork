@@ -61,9 +61,14 @@ export class ListingDetailPage implements OnInit {
     return !!item?.sellerId && item.sellerId === this.auth.claims?.oid;
   }
 
+  /** Solo una publicación ACTIVE se puede comprar (en inspección, vendida o retirada no). */
+  isAvailable(): boolean {
+    return this.listing()?.status === 'ACTIVE';
+  }
+
   addToCart(): void {
     const item = this.listing();
-    if (!item) return;
+    if (!item || item.status !== 'ACTIVE') return;
     this.cart.add({
       publicationId: item.publicationId,
       title: item.title,
