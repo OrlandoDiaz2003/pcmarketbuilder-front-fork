@@ -27,6 +27,11 @@ export const routes: Routes = [
     loadComponent: () => import('./features/orders/my-orders/my-orders').then((m) => m.MyOrders),
   },
   {
+    path: 'sales',
+    canActivate: [MsalGuard],
+    loadComponent: () => import('./features/sales/my-sales/my-sales').then((m) => m.MySales),
+  },
+  {
     path: 'register',
     loadComponent: () => import('./features/auth/register/register').then((m) => m.Register),
   },

@@ -1,0 +1,221 @@
+:host {
+  display: block;
+  padding: 24px;
+}
+
+.sales-page {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+}
+
+.header h1 {
+  font-size: 1.3rem;
+  margin: 0;
+}
+
+.muted {
+  color: var(--text-muted);
+}
+
+.muted a {
+  color: var(--accent);
+}
+
+.sale {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.top {
+  display: grid;
+  grid-template-columns: 72px 1fr max-content;
+  gap: 0.9rem;
+  align-items: center;
+}
+
+.thumb {
+  width: 72px;
+  aspect-ratio: 4 / 3;
+  background-color: #f1f5f9;
+  border-radius: 6px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+}
+
+.thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.title {
+  display: block;
+  font-weight: 600;
+  color: var(--text-dark);
+  text-decoration: none;
+}
+
+a.title:hover {
+  color: var(--accent);
+}
+
+.meta {
+  margin: 0.25rem 0 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.stage {
+  padding: 0.25rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  background: #f1f5f9;
+  color: #475569;
+  white-space: nowrap;
+}
+
+.stage[data-stage='APPROVED'] {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.stage[data-stage='DELIVERED'] {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.stage[data-stage='REJECTED'] {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.stage[data-stage='IN_REVIEW'] {
+  background: #fef9c3;
+  color: #854d0e;
+}
+
+/* ---- línea de tiempo ---- */
+.timeline {
+  list-style: none;
+  display: flex;
+  margin: 1.1rem 0 0.5rem;
+  padding: 0;
+}
+
+.timeline li {
+  flex: 1;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.2rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+/* conector entre puntos */
+.timeline li + li::before {
+  content: '';
+  position: absolute;
+  top: 7px;
+  right: 50%;
+  width: 100%;
+  height: 2px;
+  background: var(--border-color);
+}
+
+.timeline li.done + li::before,
+.timeline li.current::before {
+  background: var(--success);
+}
+
+.timeline .dot {
+  position: relative;
+  z-index: 1;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--bg-card);
+  border: 2px solid var(--border-color);
+}
+
+.timeline li.done .dot {
+  background: var(--success);
+  border-color: var(--success);
+}
+
+.timeline li.current .dot {
+  border-color: var(--success);
+  box-shadow: 0 0 0 3px #dcfce7;
+}
+
+.timeline li.done .step-name,
+.timeline li.current .step-name {
+  color: var(--text-dark);
+  font-weight: 600;
+}
+
+.step-date {
+  font-size: 0.72rem;
+}
+
+.timeline.rejected li {
+  flex: 0 1 140px;
+  margin: 0 auto;
+}
+
+.timeline.rejected .rejected-step .dot {
+  background: var(--danger);
+  border-color: var(--danger);
+}
+
+.timeline.rejected .rejected-step .step-name {
+  color: var(--danger);
+  font-weight: 600;
+}
+
+.timeline.rejected li + li::before {
+  background: #fca5a5;
+}
+
+.hint {
+  margin: 0.6rem 0 0;
+  font-size: 0.88rem;
+  color: var(--text-muted);
+}
+
+.hint a {
+  color: var(--accent);
+  margin-left: 0.35rem;
+}
+
+@media (max-width: 560px) {
+  .top {
+    grid-template-columns: 56px 1fr;
+  }
+
+  .stage {
+    grid-column: 1 / -1;
+    justify-self: start;
+  }
+
+  .timeline li {
+    font-size: 0.7rem;
+  }
+}

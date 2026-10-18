@@ -1,0 +1,86 @@
+<div class="sales-page">
+  <div class="header">
+    <h1>Mis ventas</h1>
+    <button type="button" class="btn btn-outline" (click)="load()" [disabled]="loading()">
+      <i class="fa-solid fa-rotate"></i> Actualizar
+    </button>
+  </div>
+
+  @if (error()) {
+    <p class="error">
+      <i class="fa-solid fa-triangle-exclamation"></i>
+      {{ error() }}
+    </p>
+  } @else if (loading()) {
+    <p class="muted">Cargando tus ventas...</p>
+  } @else if (sales().length === 0) {
+    <p class="muted">
+      Todavía no has vendido nada. Cuando alguien compre una de tus piezas aparecerá aquí con su estado.
+      <a routerLink="/sell/new">Publicar una pieza</a>.
+    </p>
+  } @else {
+    @for (sale of sales(); track sale.id) {
+      <article class="sale" [attr.data-stage]="sale.stage">
+        <div class="top">
+          <div class="thumb">
+            @if (sale.image) {
+              <img [src]="sale.image" [alt]="sale.title" />
+            } @else {
+              <i class="fa-solid fa-microchip"></i>
+            }
+          </div>
+          <div class="info">
+            @if (sale.publicationId) {
+              <a class="title" [routerLink]="['/listings', sale.publicationId]">{{ sale.title }}</a>
+            } @else {
+              <span class="title">{{ sale.title }}</span>
+            }
+            <p class="meta">
+              @if (sale.price !== null) {
+                <span>{{ sale.price | number: '1.0-0' }} CLP</span> ·
+              }
+              <span>Comprador: <strong>{{ sale.buyerUsername ?? 'Un comprador' }}</strong></span>
+            </p>
+          </div>
+          <span class="stage" [attr.data-stage]="sale.stage">{{ stageLabel(sale.stage) }}</span>
+        </div>
+
+        @if (sale.stage === 'REJECTED') {
+          <ol class="timeline rejected" aria-label="Estado de la venta">
+            <li class="done">
+              <span class="dot"></span>
+              <span class="step-name">Pagada</span>
+              <span class="step-date">{{ sale.paidAt | date: 'dd-MM-yyyy HH:mm' }}</span>
+            </li>
+            <li class="rejected-step">
+              <span class="dot"></span>
+              <span class="step-name">Rechazada</span>
+              @if (sale.reviewedAt) {
+                <span class="step-date">{{ sale.reviewedAt | date: 'dd-MM-yyyy HH:mm' }}</span>
+              }
+            </li>
+          </ol>
+        } @else {
+          <ol class="timeline" aria-label="Estado de la venta">
+            @for (step of steps; track step) {
+              <li [class]="stepState(step, sale.stage)">
+                <span class="dot"></span>
+                <span class="step-name">{{ stageLabel(step) }}</span>
+                @if (stepDate(step, sale); as date) {
+                  <span class="step-date">{{ date | date: 'dd-MM-yyyy HH:mm' }}</span>
+                }
+              </li>
+            }
+          </ol>
+        }
+
+        <p class="hint">
+          {{ stageHint(sale.stage) }}
+          @if (backInCatalog(sale)) {
+            <a [routerLink]="['/listings', sale.publicationId]">Ver publicación</a>
+          }
+        </p>
+      </article>
+    }
+  }
+</div>

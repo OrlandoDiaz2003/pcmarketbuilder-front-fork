@@ -16,6 +16,21 @@ export class InspectionApiService {
     return this.http.get<Inspection[]>(`${this.baseUrl}/inspections`);
   }
 
+  /** Aprobadas que el taller aún no entrega, las más antiguas primero. */
+  listToDeliver(): Observable<Inspection[]> {
+    return this.http.get<Inspection[]>(`${this.baseUrl}/inspections`, { params: { scope: 'to-deliver' } });
+  }
+
+  /** Marca la pieza aprobada como entregada: la venta se completa y la publicación pasa a "Vendida". */
+  deliver(id: string): Observable<Inspection> {
+    return this.http.post<Inspection>(`${this.baseUrl}/inspections/${id}/deliver`, {});
+  }
+
+  /** Reintenta lo que falló tras cerrar/entregar (reembolso y estado de la publicación). Idempotente. */
+  sync(id: string): Observable<{ id: string; status: string; warnings: string[] }> {
+    return this.http.post<{ id: string; status: string; warnings: string[] }>(`${this.baseUrl}/inspections/${id}/sync`, {});
+  }
+
   /** Envía el formulario: dispara el correo de confirmación y la generación del PDF. */
   complete(id: string, request: CompleteInspectionRequest): Observable<Inspection> {
     return this.http.post<Inspection>(`${this.baseUrl}/inspections/${id}/complete`, request);

@@ -57,6 +57,7 @@ export class MyOrders implements OnInit {
   }
 
   statusOf(item: OrderItem): string {
+    if (item.inspection?.status === 'PASSED' && item.inspection.deliveredAt) return 'DELIVERED';
     return item.inspection?.status ?? 'PENDING';
   }
 
