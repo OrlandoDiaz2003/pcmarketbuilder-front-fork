@@ -45,7 +45,7 @@
 .thumb {
   width: 80px;
   aspect-ratio: 4 / 3;
-  background-color: #f1f5f9;
+  background-color: var(--c-f1f5f9);
   border-radius: 6px;
   overflow: hidden;
   display: flex;
@@ -88,8 +88,8 @@
 }
 
 .remove:hover {
-  background-color: #fee2e2;
-  border-color: #fca5a5;
+  background-color: var(--c-fee2e2);
+  border-color: var(--c-fca5a5);
   color: var(--danger);
 }
 
@@ -135,8 +135,8 @@
 }
 
 .notify input.invalid {
-  border-color: #fca5a5;
-  background-color: #fef2f2;
+  border-color: var(--c-fca5a5);
+  background-color: var(--c-fef2f2);
 }
 
 .hint {

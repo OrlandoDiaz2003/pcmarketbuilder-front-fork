@@ -41,15 +41,15 @@
 }
 
 .success {
-  background-color: #f0fdf4;
-  border: 1px solid #bbf7d0;
-  color: #166534;
+  background-color: var(--c-f0fdf4);
+  border: 1px solid var(--c-bbf7d0);
+  color: var(--c-166534);
 }
 
 .notice {
   background-color: var(--accent-light);
-  border: 1px solid #bfdbfe;
-  color: #1e40af;
+  border: 1px solid var(--c-bfdbfe);
+  color: var(--c-1e40af);
 }
 
 .order {
@@ -130,31 +130,31 @@
   border-radius: 999px;
   font-size: 0.78rem;
   font-weight: 600;
-  background: #f1f5f9;
-  color: #475569;
+  background: var(--c-f1f5f9);
+  color: var(--c-475569);
 }
 
 .status[data-status='IN_REVIEW'] {
-  background: #fef9c3;
-  color: #854d0e;
+  background: var(--c-fef9c3);
+  color: var(--c-854d0e);
 }
 
 .status[data-status='PASSED'] {
-  background: #dcfce7;
-  color: #15803d;
+  background: var(--c-dcfce7);
+  color: var(--c-15803d);
 }
 
 .status[data-status='FAILED'] {
-  background: #fee2e2;
-  color: #b91c1c;
+  background: var(--c-fee2e2);
+  color: var(--c-b91c1c);
 }
 
 .status[data-status='DELIVERED'] {
-  background: #dbeafe;
-  color: #1d4ed8;
+  background: var(--c-dbeafe);
+  color: var(--c-1d4ed8);
 }
 
 .status[data-status='REFUNDED'] {
-  background: #f1f5f9;
-  color: #475569;
+  background: var(--c-f1f5f9);
+  color: var(--c-475569);
 }

@@ -19,6 +19,90 @@
   --danger: #b91c1c;
   --success: #16a34a;
   --shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+
+  /* Colores que antes estaban fijos en los componentes; el tema oscuro los redefine abajo. */
+  --c-15803d: #15803d;
+  --c-166534: #166534;
+  --c-1d4ed8: #1d4ed8;
+  --c-1e40af: #1e40af;
+  --c-475569: #475569;
+  --c-854d0e: #854d0e;
+  --c-9f1239: #9f1239;
+  --c-b91c1c: #b91c1c;
+  --c-bbf7d0: #bbf7d0;
+  --c-bfdbfe: #bfdbfe;
+  --c-cbd5e1: #cbd5e1;
+  --c-dbeafe: #dbeafe;
+  --c-dcfce7: #dcfce7;
+  --c-e11d48: #e11d48;
+  --c-e2e8f0: #e2e8f0;
+  --c-e5e5e5: #e5e5e5;
+  --c-eff6ff: #eff6ff;
+  --c-f0fdf4: #f0fdf4;
+  --c-f1f5f9: #f1f5f9;
+  --c-f3f4f6: #f3f4f6;
+  --c-f8fafc: #f8fafc;
+  --c-fca5a5: #fca5a5;
+  --c-fde68a: #fde68a;
+  --c-fecaca: #fecaca;
+  --c-fecdd3: #fecdd3;
+  --c-fee2e2: #fee2e2;
+  --c-fef2f2: #fef2f2;
+  --c-fef9c3: #fef9c3;
+  --c-fff1f2: #fff1f2;
+  --c-fffbeb: #fffbeb;
+  --c-ffffff: #ffffff;
+}
+
+/* Tema oscuro (estilo Material Design: superficies en grises sobre #121212, colores poco saturados). */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --bg-main: #18191A;
+  --bg-card: #242526;
+  --text-dark: #E4E6EB;
+  --text-muted: #B0B3B8;
+  --primary: #2374E1;
+  --primary-hover: #1B64C4;
+  --accent: #2D88FF;
+  --accent-light: #263951;
+  --border-color: #3E4042;
+  --badge-qa-bg: #1F3A33;
+  --badge-qa-text: #45BD62;
+  --danger: #FF5C61;
+  --success: #45BD62;
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+
+  --c-15803d: #45BD62;
+  --c-166534: #6FD08A;
+  --c-1d4ed8: #2D88FF;
+  --c-1e40af: #4599FF;
+  --c-475569: #B0B3B8;
+  --c-854d0e: #d4c27a;
+  --c-9f1239: #FF7A7E;
+  --c-b91c1c: #FF5C61;
+  --c-bbf7d0: #3b5a3f;
+  --c-bfdbfe: #2D5A9E;
+  --c-cbd5e1: #4E4F50;
+  --c-dbeafe: #2A4570;
+  --c-dcfce7: #233326;
+  --c-e11d48: #FA383E;
+  --c-e2e8f0: #3E4042;
+  --c-e5e5e5: #3E4042;
+  --c-eff6ff: #263951;
+  --c-f0fdf4: #202b22;
+  --c-f1f5f9: #3A3B3C;
+  --c-f3f4f6: #3A3B3C;
+  --c-f8fafc: #18191A;
+  --c-fca5a5: #6d3b42;
+  --c-fde68a: #5c5430;
+  --c-fecaca: #5a3338;
+  --c-fecdd3: #5a3338;
+  --c-fee2e2: #3a2528;
+  --c-fef2f2: #2f2224;
+  --c-fef9c3: #3a3624;
+  --c-fff1f2: #2f2224;
+  --c-fffbeb: #33301f;
+  --c-ffffff: #242526;
 }
 
 html,
@@ -73,37 +157,37 @@ a {
 .btn-secondary {
   background-color: var(--accent-light);
   color: var(--accent);
-  border-color: #bfdbfe;
+  border-color: var(--c-bfdbfe);
 }
 
 .btn-secondary:hover:not(:disabled) {
-  background-color: #dbeafe;
+  background-color: var(--c-dbeafe);
 }
 
 .btn-outline {
-  background-color: #ffffff;
+  background-color: var(--c-ffffff);
   color: var(--text-dark);
   border-color: var(--border-color);
 }
 
 .btn-outline:hover:not(:disabled) {
-  background-color: #f1f5f9;
+  background-color: var(--c-f1f5f9);
 }
 
 .btn-danger {
-  background-color: #fef2f2;
+  background-color: var(--c-fef2f2);
   color: var(--danger);
-  border-color: #fecaca;
+  border-color: var(--c-fecaca);
 }
 
 .btn-danger:hover:not(:disabled) {
-  background-color: #fee2e2;
+  background-color: var(--c-fee2e2);
 }
 
 .form-error {
   color: var(--danger);
-  background-color: #fef2f2;
-  border: 1px solid #fecaca;
+  background-color: var(--c-fef2f2);
+  border: 1px solid var(--c-fecaca);
   border-radius: 6px;
   padding: 10px 12px;
   font-size: 0.85rem;
@@ -122,9 +206,9 @@ a {
   margin: 40px auto;
   padding: 28px 24px;
   text-align: center;
-  color: #9f1239;
-  background-color: #fff1f2;
-  border: 1px solid #fecdd3;
+  color: var(--c-9f1239);
+  background-color: var(--c-fff1f2);
+  border: 1px solid var(--c-fecdd3);
   border-radius: 12px;
   font-size: 0.9rem;
   line-height: 1.55;
@@ -132,5 +216,5 @@ a {
 
 .error i {
   font-size: 1.5rem;
-  color: #e11d48;
+  color: var(--c-e11d48);
 }

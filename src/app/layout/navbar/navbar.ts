@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../core/auth/auth.service';
 import { CartService } from '../../core/services/cart.service';
+import { ThemeService } from '../../core/services/theme.service';
 
 @Component({
   selector: 'app-navbar',
@@ -13,6 +14,7 @@ export class Navbar {
   constructor(
     readonly auth: AuthService,
     readonly cart: CartService,
+    readonly theme: ThemeService,
   ) {}
 
   login(): void {

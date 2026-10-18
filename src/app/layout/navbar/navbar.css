@@ -85,7 +85,7 @@
 
 .cart-button:hover,
 .cart-button.active {
-  background-color: #f1f5f9;
+  background-color: var(--c-f1f5f9);
 }
 
 .cart-badge {
@@ -108,4 +108,19 @@
     order: 3;
     flex-basis: 100%;
   }
+}
+
+.theme-toggle {
+  background: none;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  width: 36px;
+  height: 36px;
+  color: var(--text-dark);
+  cursor: pointer;
+}
+
+.theme-toggle:hover {
+  background-color: var(--accent-light);
+  color: var(--accent);
 }
