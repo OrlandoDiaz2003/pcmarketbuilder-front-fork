@@ -47,7 +47,7 @@
 .thumb {
   width: 72px;
   aspect-ratio: 4 / 3;
-  background-color: #f1f5f9;
+  background-color: var(--c-f1f5f9);
   border-radius: 6px;
   overflow: hidden;
   display: flex;
@@ -84,29 +84,29 @@ a.title:hover {
   border-radius: 999px;
   font-size: 0.78rem;
   font-weight: 600;
-  background: #f1f5f9;
-  color: #475569;
+  background: var(--c-f1f5f9);
+  color: var(--c-475569);
   white-space: nowrap;
 }
 
 .stage[data-stage='APPROVED'] {
-  background: #dcfce7;
-  color: #15803d;
+  background: var(--c-dcfce7);
+  color: var(--c-15803d);
 }
 
 .stage[data-stage='DELIVERED'] {
-  background: #dbeafe;
-  color: #1d4ed8;
+  background: var(--c-dbeafe);
+  color: var(--c-1d4ed8);
 }
 
 .stage[data-stage='REJECTED'] {
-  background: #fee2e2;
-  color: #b91c1c;
+  background: var(--c-fee2e2);
+  color: var(--c-b91c1c);
 }
 
 .stage[data-stage='IN_REVIEW'] {
-  background: #fef9c3;
-  color: #854d0e;
+  background: var(--c-fef9c3);
+  color: var(--c-854d0e);
 }
 
 /* ---- línea de tiempo ---- */
@@ -162,7 +162,7 @@ a.title:hover {
 
 .timeline li.current .dot {
   border-color: var(--success);
-  box-shadow: 0 0 0 3px #dcfce7;
+  box-shadow: 0 0 0 3px var(--c-dcfce7);
 }
 
 .timeline li.done .step-name,
@@ -191,7 +191,7 @@ a.title:hover {
 }
 
 .timeline.rejected li + li::before {
-  background: #fca5a5;
+  background: var(--c-fca5a5);
 }
 
 .hint {

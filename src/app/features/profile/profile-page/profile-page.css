@@ -27,7 +27,7 @@
   width: 80px;
   height: 80px;
   border-radius: 50%;
-  background-color: #cbd5e1;
+  background-color: var(--c-cbd5e1);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -165,7 +165,7 @@
 
 .pub-image {
   height: 140px;
-  background-color: #f1f5f9;
+  background-color: var(--c-f1f5f9);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -202,7 +202,7 @@
 }
 
 .grade-tag {
-  background-color: #e2e8f0;
+  background-color: var(--c-e2e8f0);
   padding: 2px 6px;
   border-radius: 4px;
   font-weight: 600;

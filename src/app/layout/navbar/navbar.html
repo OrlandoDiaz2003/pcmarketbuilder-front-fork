@@ -26,6 +26,16 @@
       <i class="fa-solid fa-plus"></i> Publicar
     </a>
 
+    <button
+      type="button"
+      class="theme-toggle"
+      (click)="theme.toggle()"
+      [attr.aria-label]="theme.theme() === 'dark' ? 'Activar modo claro' : 'Activar modo oscuro'"
+      [title]="theme.theme() === 'dark' ? 'Modo claro' : 'Modo oscuro'"
+    >
+      <i class="fa-solid" [class.fa-moon]="theme.theme() === 'light'" [class.fa-sun]="theme.theme() === 'dark'"></i>
+    </button>
+
     <a class="cart-button" routerLink="/cart" routerLinkActive="active" aria-label="Carrito">
       <i class="fa-solid fa-cart-shopping"></i>
       @if (cart.count() > 0) {

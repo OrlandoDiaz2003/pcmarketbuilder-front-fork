@@ -49,7 +49,7 @@
 
 .step-header {
   padding: 14px 18px;
-  background-color: #f8fafc;
+  background-color: var(--c-f8fafc);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -66,7 +66,7 @@
   width: 26px;
   height: 26px;
   border-radius: 50%;
-  background-color: #f1f5f9;
+  background-color: var(--c-f1f5f9);
   color: var(--text-dark);
   font-size: 0.8rem;
   font-weight: 700;
@@ -96,7 +96,7 @@
 .step-content {
   padding: 16px 18px;
   border-top: 1px solid var(--border-color);
-  background-color: #f8fafc;
+  background-color: var(--c-f8fafc);
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -126,7 +126,7 @@
 }
 
 .option-card {
-  background-color: #ffffff;
+  background-color: var(--c-ffffff);
   border: 1px solid var(--border-color);
   border-radius: 6px;
   padding: 12px 14px;
@@ -138,7 +138,7 @@
 }
 
 .option-card:hover {
-  border-color: #cbd5e1;
+  border-color: var(--c-cbd5e1);
 }
 
 .option-card.active {
@@ -155,7 +155,7 @@
 .option-img {
   width: 48px;
   height: 48px;
-  background-color: #e2e8f0;
+  background-color: var(--c-e2e8f0);
   border-radius: 4px;
   display: flex;
   align-items: center;
@@ -197,7 +197,7 @@ form textarea {
   border: 1px solid var(--border-color);
   border-radius: 6px;
   font: inherit;
-  background-color: #ffffff;
+  background-color: var(--c-ffffff);
 }
 
 form .btn {
@@ -294,14 +294,14 @@ form .btn {
   padding: 44px 24px;
   border: 2px dashed var(--border-color);
   border-radius: 10px;
-  background-color: var(--bg-soft, #f8fafc);
+  background-color: var(--bg-soft, var(--c-f8fafc));
   text-align: center;
   transition: border-color 0.15s ease, background-color 0.15s ease;
 }
 
 .photo-dropzone.dragging {
   border-color: var(--primary);
-  background-color: #eff6ff;
+  background-color: var(--c-eff6ff);
 }
 
 .dropzone-icon {
@@ -432,10 +432,10 @@ form .btn {
 
 .upload-progress-alert {
   padding: 10px 14px;
-  background-color: #eff6ff;
-  border: 1px solid #bfdbfe;
+  background-color: var(--c-eff6ff);
+  border: 1px solid var(--c-bfdbfe);
   border-radius: 6px;
-  color: #1e40af;
+  color: var(--c-1e40af);
   font-size: 0.88rem;
   display: flex;
   align-items: center;

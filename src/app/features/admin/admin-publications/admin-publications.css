@@ -6,7 +6,7 @@
 }
 
 .header button {
-  background: #2563eb;
+  background: var(--primary);
   color: #fff;
   border: none;
   border-radius: 6px;
@@ -29,11 +29,11 @@
 .listings td {
   text-align: left;
   padding: 0.6rem 0.75rem;
-  border-bottom: 1px solid #e5e5e5;
+  border-bottom: 1px solid var(--c-e5e5e5);
 }
 
 .listings a {
-  color: #2563eb;
+  color: var(--accent);
   text-decoration: none;
 }
 
@@ -46,13 +46,13 @@
   padding: 0.15rem 0.5rem;
   border-radius: 999px;
   font-size: 0.75rem;
-  background: #f3f4f6;
+  background: var(--c-f3f4f6);
   color: #444;
 }
 
 .status[data-status='ACTIVE'] {
-  background: #dcfce7;
-  color: #15803d;
+  background: var(--c-dcfce7);
+  color: var(--c-15803d);
 }
 
 .status[data-status='SOLD'] {
@@ -61,14 +61,14 @@
 }
 
 .status[data-status='WITHDRAWN'] {
-  background: #fee2e2;
-  color: #b91c1c;
+  background: var(--c-fee2e2);
+  color: var(--c-b91c1c);
 }
 
 .delete {
-  background: #fee2e2;
-  color: #b91c1c;
-  border: 1px solid #fca5a5;
+  background: var(--c-fee2e2);
+  color: var(--c-b91c1c);
+  border: 1px solid var(--c-fca5a5);
   border-radius: 6px;
   padding: 0.35rem 0.75rem;
   cursor: pointer;
@@ -76,7 +76,7 @@
 }
 
 .delete:hover {
-  background: #fecaca;
+  background: var(--c-fecaca);
 }
 
 .delete:disabled {
