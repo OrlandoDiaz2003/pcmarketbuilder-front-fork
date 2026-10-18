@@ -105,7 +105,12 @@
         </div>
 
         <div class="action-buttons">
-          @if (cart.has(item.publicationId)) {
+          @if (!isAvailable()) {
+            <button type="button" class="btn btn-secondary" disabled>
+              <i class="fa-solid fa-ban"></i> No disponible
+            </button>
+            <p class="own-listing-note">Esta pieza ya está {{ statusLabel(item.status).toLowerCase() }} y no se puede comprar.</p>
+          } @else if (cart.has(item.publicationId)) {
             <button type="button" class="btn btn-secondary" disabled>
               <i class="fa-solid fa-check"></i> En el carrito
             </button>
