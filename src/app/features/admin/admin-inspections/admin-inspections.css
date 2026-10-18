@@ -313,3 +313,108 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ---- Pestañas ---- */
+.tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.tabs button {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 0.5rem 0.9rem;
+  font: inherit;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.tabs button.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+/* ---- Aviso de pasos pendientes ---- */
+.warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 0 0 1rem;
+  padding: 12px 14px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  background-color: #fffbeb;
+  border: 1px solid #fde68a;
+  color: #92400e;
+}
+
+.warning ul {
+  margin: 0.3rem 0 0.6rem;
+  padding-left: 1.1rem;
+}
+
+/* ---- Por entregar ---- */
+.deliver-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  max-width: 760px;
+}
+
+.deliver-item {
+  display: grid;
+  grid-template-columns: 72px 1fr max-content;
+  gap: 0.9rem;
+  align-items: center;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 0.7rem;
+}
+
+.deliver-item .thumb {
+  width: 72px;
+  aspect-ratio: 4 / 3;
+  background-color: #f1f5f9;
+  border-radius: 6px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+}
+
+.deliver-item .thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.deliver-item .card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.deliver-item .meta {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+@media (max-width: 560px) {
+  .deliver-item {
+    grid-template-columns: 56px 1fr;
+  }
+
+  .deliver-item .btn {
+    grid-column: 1 / -1;
+  }
+}

@@ -5,8 +5,34 @@
   </button>
 </div>
 
+<div class="tabs" role="tablist">
+  <button type="button" role="tab" [class.active]="tab() === 'review'" [attr.aria-selected]="tab() === 'review'" (click)="setTab('review')">
+    Pendientes de revisión
+  </button>
+  <button type="button" role="tab" [class.active]="tab() === 'deliver'" [attr.aria-selected]="tab() === 'deliver'" (click)="setTab('deliver')">
+    Por entregar
+  </button>
+</div>
+
 @if (success()) {
   <p class="success"><i class="fa-solid fa-circle-check"></i> {{ success() }}</p>
+}
+
+@if (warnings(); as pending) {
+  <div class="warning" role="alert">
+    <i class="fa-solid fa-triangle-exclamation"></i>
+    <div>
+      <strong>Quedó un paso pendiente:</strong>
+      <ul>
+        @for (message of pending.messages; track message) {
+          <li>{{ message }}</li>
+        }
+      </ul>
+      <button type="button" class="btn btn-outline" (click)="retry()" [disabled]="retrying()">
+        <i class="fa-solid fa-rotate"></i> {{ retrying() ? 'Reintentando...' : 'Reintentar' }}
+      </button>
+    </div>
+  </div>
 }
 
 @if (error()) {
@@ -17,7 +43,39 @@
 } @else if (loading()) {
   <p class="muted">Cargando bandeja...</p>
 } @else if (inspections().length === 0) {
-  <p class="muted">No hay piezas pendientes de revisión. Las compras nuevas aparecen aquí automáticamente.</p>
+  @if (tab() === 'deliver') {
+    <p class="muted">No hay piezas aprobadas por entregar.</p>
+  } @else {
+    <p class="muted">No hay piezas pendientes de revisión. Las compras nuevas aparecen aquí automáticamente.</p>
+  }
+} @else if (tab() === 'deliver') {
+  <ul class="deliver-list">
+    @for (inspection of inspections(); track inspection.id) {
+      <li class="deliver-item">
+        <span class="thumb">
+          @if (primaryImage(inspection); as src) {
+            <img [src]="src" [alt]="inspection.description ?? 'Pieza'" />
+          } @else {
+            <i class="fa-solid fa-microchip"></i>
+          }
+        </span>
+        <span class="card-info">
+          <strong>{{ inspection.listing?.title ?? inspection.description ?? 'Pieza' }}</strong>
+          <span class="meta">Aprobada el {{ inspection.completedAt | date: 'dd-MM-yyyy HH:mm' }}</span>
+          <span class="meta"><i class="fa-regular fa-envelope"></i> {{ inspection.buyerEmail ?? 'sin correo' }}</span>
+        </span>
+        <button
+          type="button"
+          class="btn btn-primary"
+          (click)="deliver(inspection)"
+          [disabled]="deliveringId() !== null"
+        >
+          <i class="fa-solid fa-box-open"></i>
+          {{ deliveringId() === inspection.id ? 'Guardando...' : 'Marcar como entregada' }}
+        </button>
+      </li>
+    }
+  </ul>
 } @else {
   <div class="layout">
     <!-- BANDEJA -->

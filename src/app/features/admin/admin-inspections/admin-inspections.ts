@@ -24,6 +24,8 @@ function today(): string {
   styleUrl: './admin-inspections.css',
 })
 export class AdminInspections implements OnInit {
+  /** "review": pendientes de revisión (formulario). "deliver": aprobadas por entregar. */
+  readonly tab = signal<'review' | 'deliver'>('review');
   readonly inspections = signal<Inspection[]>([]);
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
@@ -32,6 +34,10 @@ export class AdminInspections implements OnInit {
   readonly selectedImageIndex = signal(0);
   readonly submitting = signal(false);
   readonly formError = signal<string | null>(null);
+  /** Pasos que fallaron tras cerrar/entregar (reembolso, estado de la publicación) y se pueden reintentar. */
+  readonly warnings = signal<{ inspectionId: string; messages: string[] } | null>(null);
+  readonly retrying = signal(false);
+  readonly deliveringId = signal<string | null>(null);
 
   readonly gradeLabel = gradeLabel;
 
@@ -72,7 +78,8 @@ export class AdminInspections implements OnInit {
   load(): void {
     this.loading.set(true);
     this.error.set(null);
-    this.api.listOpen().subscribe({
+    const request = this.tab() === 'deliver' ? this.api.listToDeliver() : this.api.listOpen();
+    request.subscribe({
       next: (inspections) => {
         this.inspections.set(inspections);
         if (this.selectedId() && !inspections.some((i) => i.id === this.selectedId())) {
@@ -81,10 +88,68 @@ export class AdminInspections implements OnInit {
         this.loading.set(false);
       },
       error: () => {
-        this.error.set('No se pudo cargar la bandeja de inspecciones.');
+        this.error.set(
+          this.tab() === 'deliver'
+            ? 'No se pudo cargar la lista de piezas por entregar.'
+            : 'No se pudo cargar la bandeja de inspecciones.',
+        );
         this.loading.set(false);
       },
     });
+  }
+
+  setTab(tab: 'review' | 'deliver'): void {
+    if (this.tab() === tab) return;
+    this.tab.set(tab);
+    this.selectedId.set(null);
+    this.success.set(null);
+    this.warnings.set(null);
+    this.inspections.set([]);
+    this.load();
+  }
+
+  /** El taller entrega la pieza aprobada: la venta se completa y la publicación pasa a "Vendida". */
+  deliver(inspection: Inspection): void {
+    if (this.deliveringId()) return;
+    this.deliveringId.set(inspection.id);
+    this.success.set(null);
+    this.warnings.set(null);
+    this.error.set(null);
+    this.api.deliver(inspection.id).subscribe({
+      next: (result) => {
+        this.deliveringId.set(null);
+        this.inspections.set(this.inspections().filter((i) => i.id !== inspection.id));
+        this.success.set('Pieza marcada como entregada. La venta quedó completada.');
+        this.showWarnings(inspection.id, result.warnings);
+      },
+      error: (err: HttpErrorResponse) => {
+        this.deliveringId.set(null);
+        this.error.set(err.error?.message ?? 'No se pudo marcar la pieza como entregada.');
+        if (err.status === 409) this.load();
+      },
+    });
+  }
+
+  /** Reintenta los pasos pendientes (reembolso / estado de la publicación). Es idempotente. */
+  retry(): void {
+    const pending = this.warnings();
+    if (!pending || this.retrying()) return;
+    this.retrying.set(true);
+    this.api.sync(pending.inspectionId).subscribe({
+      next: (result) => {
+        this.retrying.set(false);
+        this.showWarnings(pending.inspectionId, result.warnings);
+        if (!this.warnings()) this.success.set('Listo: los pasos pendientes se completaron.');
+      },
+      error: () => {
+        this.retrying.set(false);
+        this.error.set('No se pudo reintentar. Inténtalo de nuevo en unos segundos.');
+      },
+    });
+  }
+
+  private showWarnings(inspectionId: string, messages: string[] | undefined): void {
+    this.warnings.set(messages && messages.length > 0 ? { inspectionId, messages } : null);
   }
 
   select(inspection: Inspection): void {
@@ -133,13 +198,14 @@ export class AdminInspections implements OnInit {
         checks: checks.length > 0 ? checks : undefined,
       })
       .subscribe({
-        next: () => {
+        next: (result) => {
           this.inspections.set(this.inspections().filter((i) => i.id !== inspection.id));
           this.selectedId.set(null);
           this.submitting.set(false);
           this.success.set(
             `Informe enviado a proceso: se avisará a ${inspection.buyerEmail ?? 'el comprador'} y se le enviará el PDF.`,
           );
+          this.showWarnings(inspection.id, result.warnings);
         },
         error: (err: HttpErrorResponse) => {
           this.submitting.set(false);

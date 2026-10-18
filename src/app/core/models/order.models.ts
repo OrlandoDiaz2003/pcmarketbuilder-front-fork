@@ -6,6 +6,8 @@ export type InspectionStatus = 'PENDING' | 'IN_REVIEW' | 'PASSED' | 'FAILED';
 export interface OrderItemInspection {
   status: InspectionStatus;
   completedAt: string | null;
+  /** Cuando el taller entregó la pieza al comprador (solo si fue aprobada). */
+  deliveredAt: string | null;
 }
 
 export interface OrderItem {

@@ -148,3 +148,13 @@
   background: #fee2e2;
   color: #b91c1c;
 }
+
+.status[data-status='DELIVERED'] {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.status[data-status='REFUNDED'] {
+  background: #f1f5f9;
+  color: #475569;
+}

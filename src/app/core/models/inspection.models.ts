@@ -25,9 +25,12 @@ export interface Inspection {
   workshopNotes: string | null;
   checks: ComponentCheck[];
   completedAt: string | null;
+  deliveredAt: string | null;
   createdAt: string;
   /** null si la publicación ya no existe o no se pudo consultar. */
   listing: ListingDetail | null;
+  /** Pasos posteriores que el BFF no pudo aplicar (reembolso, estado de la publicación). Se reintentan con `sync`. */
+  warnings?: string[];
 }
 
 /** Formulario del admin. maintenanceDate: AAAA-MM-DD. */

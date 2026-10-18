@@ -48,7 +48,10 @@
                 <span class="price">{{ item.price | number: '1.0-0' }} CLP</span>
               </div>
               <div class="item-status">
-                <span class="status" [attr.data-status]="statusOf(item)">{{ inspectionLabel(item.inspection?.status) }}</span>
+                <span class="status" [attr.data-status]="statusOf(item)">{{ inspectionLabel(item.inspection?.status, item.inspection?.deliveredAt) }}</span>
+                @if (order.paymentStatus === 'REFUNDED') {
+                  <span class="status" data-status="REFUNDED">Reembolsada</span>
+                }
                 @if (hasReport(item)) {
                   <button
                     type="button"
