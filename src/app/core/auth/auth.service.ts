@@ -1,11 +1,12 @@
-import { Injectable, OnDestroy, signal } from '@angular/core';
+import { Injectable, Injector, OnDestroy, signal } from '@angular/core';
 import { MsalBroadcastService, MsalService } from '@azure/msal-angular';
 import { AccountInfo, AuthenticationResult, EventMessage, EventType, InteractionStatus } from '@azure/msal-browser';
 import { Observable, Subject } from 'rxjs';
 import { filter, takeUntil } from 'rxjs/operators';
 import { UserRole } from '../models/user.models';
 import { environment } from '../../../environments/environment';
-import { loginRequest } from './msal.factory';
+import { UserApiService } from '../services/user-api.service';
+import { bffScope, loginRequest } from './msal.factory';
 
 export interface EntraClaims {
   oid?: string;
@@ -14,6 +15,11 @@ export interface EntraClaims {
   preferred_username?: string;
   name?: string;
 }
+
+/** Clave (sessionStorage) con el oid del último usuario ya sincronizado con ms-user en esta sesión. */
+const USER_SYNCED_KEY = 'pcb.userSynced';
+/** Espera entre intentos de sincronizar al usuario si falló (evita repetir en cada evento de MSAL). */
+const USER_SYNC_RETRY_MS = 60_000;
 
 /** Clave (sessionStorage) donde MSAL marca que hay un login/logout por redirect en curso. */
 const MSAL_INTERACTION_KEY = 'msal.interaction.status';
@@ -45,6 +51,7 @@ export class AuthService implements OnDestroy {
   constructor(
     private readonly msalService: MsalService,
     private readonly msalBroadcastService: MsalBroadcastService,
+    private readonly injector: Injector,
   ) {
     this.snapshot('página cargada');
     this.msalBroadcastService.msalSubject$.pipe(takeUntil(this.destroyed$)).subscribe((msg: EventMessage) => {
@@ -100,14 +107,69 @@ export class AuthService implements OnDestroy {
     const active = this.msalService.instance.getActiveAccount();
     if (active) {
       this.account.set(active);
+      this.syncUserOnce();
       return;
     }
     const accounts = this.msalService.instance.getAllAccounts();
     if (accounts.length > 0) {
       this.msalService.instance.setActiveAccount(accounts[0]);
       this.account.set(accounts[0]);
+      this.syncUserOnce();
     } else {
       this.account.set(null);
+    }
+  }
+
+  private userSyncInFlight = false;
+  private lastUserSyncAttempt = 0;
+
+  /**
+   * Alta del usuario en ms-user justo al iniciar sesión o registrarse (antes solo ocurría al abrir el perfil). Una vez por
+   * sesión y por usuario. El BFF también lo hace en la primera petición autenticada: esto solo lo adelanta.
+   *
+   * Pide el token EN SILENCIO antes de llamar al BFF: si no hay token válido se omite. Así nunca dispara por su cuenta el
+   * redirect interactivo del interceptor de MSAL (que podría sacar al usuario de la página sin que lo pida).
+   */
+  private syncUserOnce(): void {
+    const account = this.account();
+    const oid = this.claims?.oid ?? account?.localAccountId;
+    if (!account || !oid || this.userSyncInFlight || this.isUserSynced(oid)) return;
+    if (Date.now() - this.lastUserSyncAttempt < USER_SYNC_RETRY_MS) return;
+
+    this.userSyncInFlight = true;
+    this.lastUserSyncAttempt = Date.now();
+    const done = () => (this.userSyncInFlight = false);
+    this.msalService.acquireTokenSilent({ scopes: [bffScope], account }).subscribe({
+      next: () => {
+        try {
+          this.injector.get(UserApiService).syncUser().subscribe({
+            next: () => {
+              this.markUserSynced(oid);
+              done();
+            },
+            error: done,
+          });
+        } catch {
+          done();
+        }
+      },
+      error: done,
+    });
+  }
+
+  private isUserSynced(oid: string): boolean {
+    try {
+      return sessionStorage.getItem(USER_SYNCED_KEY) === oid;
+    } catch {
+      return false;
+    }
+  }
+
+  private markUserSynced(oid: string): void {
+    try {
+      sessionStorage.setItem(USER_SYNCED_KEY, oid);
+    } catch {
+      // sin sessionStorage se reintentará en la próxima carga; no es un error
     }
   }
 

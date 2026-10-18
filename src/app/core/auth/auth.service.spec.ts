@@ -4,6 +4,7 @@ import { AccountInfo, EventType } from '@azure/msal-browser';
 import { Subject, of, throwError } from 'rxjs';
 import { vi } from 'vitest';
 import { environment } from '../../../environments/environment';
+import { UserApiService } from '../services/user-api.service';
 import { AuthService } from './auth.service';
 
 const MSAL_KEY = 'msal.interaction.status';
@@ -15,7 +16,8 @@ function account(name: string): AccountInfo {
 describe('AuthService (login / logout)', () => {
   const msalSubject$ = new Subject<unknown>();
   const instance = { getActiveAccount: vi.fn(), setActiveAccount: vi.fn(), getAllAccounts: vi.fn() };
-  const msal = { instance, loginRedirect: vi.fn(), logoutRedirect: vi.fn() };
+  const msal = { instance, loginRedirect: vi.fn(), logoutRedirect: vi.fn(), acquireTokenSilent: vi.fn() };
+  const userApi = { syncUser: vi.fn() };
 
   function setup(): AuthService {
     sessionStorage.clear();
@@ -25,8 +27,11 @@ describe('AuthService (login / logout)', () => {
     instance.setActiveAccount.mockReset();
     msal.loginRedirect.mockReset().mockReturnValue(of(undefined));
     msal.logoutRedirect.mockReset().mockReturnValue(of(undefined));
+    msal.acquireTokenSilent.mockReset().mockReturnValue(of({}));
+    userApi.syncUser.mockReset().mockReturnValue(of({}));
     TestBed.configureTestingModule({
       providers: [
+        { provide: UserApiService, useValue: userApi },
         { provide: MsalService, useValue: msal },
         { provide: MsalBroadcastService, useValue: { msalSubject$, inProgress$: new Subject() } },
       ],
@@ -92,12 +97,95 @@ describe('AuthService (login / logout)', () => {
   });
 });
 
+describe('AuthService (alta del usuario en ms-user)', () => {
+  const msalSubject$ = new Subject<unknown>();
+  const instance = { getActiveAccount: vi.fn(), setActiveAccount: vi.fn(), getAllAccounts: vi.fn() };
+  const msal = { instance, loginRedirect: vi.fn(), logoutRedirect: vi.fn(), acquireTokenSilent: vi.fn() };
+  const userApi = { syncUser: vi.fn() };
+  const ana = account('ana');
+
+  function setup(hasAccount = true): AuthService {
+    sessionStorage.clear();
+    vi.useRealTimers();
+    instance.getActiveAccount.mockReset().mockReturnValue(hasAccount ? ana : null);
+    instance.getAllAccounts.mockReset().mockReturnValue(hasAccount ? [ana] : []);
+    instance.setActiveAccount.mockReset();
+    msal.acquireTokenSilent.mockReset().mockReturnValue(of({}));
+    userApi.syncUser.mockReset().mockReturnValue(of({}));
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: UserApiService, useValue: userApi },
+        { provide: MsalService, useValue: msal },
+        { provide: MsalBroadcastService, useValue: { msalSubject$, inProgress$: new Subject() } },
+      ],
+    });
+    return TestBed.inject(AuthService);
+  }
+
+  const login = () => msalSubject$.next({ eventType: EventType.LOGIN_SUCCESS, payload: ana });
+
+  afterEach(() => vi.restoreAllMocks());
+
+  it('al iniciar sesión sincroniza al usuario una sola vez por sesión', () => {
+    setup();
+    login();
+    msalSubject$.next({ eventType: EventType.ACQUIRE_TOKEN_SUCCESS, payload: { account: ana } });
+    login();
+    expect(userApi.syncUser).toHaveBeenCalledTimes(1);
+    expect(sessionStorage.getItem('pcb.userSynced')).toBe('ana');
+  });
+
+  it('pide el token en silencio con el scope del BFF antes de llamar (no depende del redirect interactivo)', () => {
+    setup();
+    login();
+    expect(msal.acquireTokenSilent).toHaveBeenCalledWith({
+      scopes: [`api://${environment.msal.clientId}/access_as_user`],
+      account: ana,
+    });
+  });
+
+  it('si no hay token válido NO llama al BFF (así no se dispara un redirect sin que el usuario lo pida)', () => {
+    setup();
+    msal.acquireTokenSilent.mockReturnValue(throwError(() => ({ errorCode: 'interaction_required' })));
+    login();
+    expect(userApi.syncUser).not.toHaveBeenCalled();
+    expect(sessionStorage.getItem('pcb.userSynced')).toBeNull();
+  });
+
+  it('si la sincronización falla no marca la sesión y reintenta solo pasado el tiempo de espera', () => {
+    setup();
+    const now = vi.spyOn(Date, 'now').mockReturnValue(1_000_000);
+    userApi.syncUser.mockReturnValue(throwError(() => new Error('BFF caído')));
+    login();
+    expect(userApi.syncUser).toHaveBeenCalledTimes(1);
+    expect(sessionStorage.getItem('pcb.userSynced')).toBeNull();
+
+    now.mockReturnValue(1_000_000 + 30_000); // aún en espera: no martilla
+    login();
+    expect(userApi.syncUser).toHaveBeenCalledTimes(1);
+
+    now.mockReturnValue(1_000_000 + 61_000);
+    userApi.syncUser.mockReturnValue(of({}));
+    login();
+    expect(userApi.syncUser).toHaveBeenCalledTimes(2);
+    expect(sessionStorage.getItem('pcb.userSynced')).toBe('ana');
+  });
+
+  it('sin sesión no sincroniza nada', () => {
+    setup(false);
+    login();
+    expect(userApi.syncUser).not.toHaveBeenCalled();
+    expect(msal.acquireTokenSilent).not.toHaveBeenCalled();
+  });
+});
+
 describe('AuthService (errores del redirect)', () => {
   it('muestra el código AADSTS que devuelve Microsoft en vez de tragárselo', () => {
     sessionStorage.clear();
     vi.spyOn(console, 'error').mockImplementation(() => undefined);
     TestBed.configureTestingModule({
       providers: [
+        { provide: UserApiService, useValue: { syncUser: vi.fn() } },
         { provide: MsalService, useValue: { instance: {}, loginRedirect: vi.fn(), logoutRedirect: vi.fn() } },
         { provide: MsalBroadcastService, useValue: { msalSubject$: new Subject(), inProgress$: new Subject() } },
       ],
@@ -114,6 +202,7 @@ describe('AuthService (errores del redirect)', () => {
     vi.spyOn(console, 'error').mockImplementation(() => undefined);
     TestBed.configureTestingModule({
       providers: [
+        { provide: UserApiService, useValue: { syncUser: vi.fn() } },
         { provide: MsalService, useValue: { instance: {}, loginRedirect: vi.fn(), logoutRedirect: vi.fn() } },
         { provide: MsalBroadcastService, useValue: { msalSubject$: new Subject(), inProgress$: new Subject() } },
       ],
