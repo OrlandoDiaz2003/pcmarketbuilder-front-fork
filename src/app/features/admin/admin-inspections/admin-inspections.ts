@@ -4,7 +4,7 @@ import { Component, OnInit, computed, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ComponentResult, Inspection } from '../../../core/models/inspection.models';
 import { InspectionApiService } from '../../../core/services/inspection-api.service';
-import { gradeLabel } from '../../../core/utils/labels';
+import { gradeLabel, notificationLabel } from '../../../core/utils/labels';
 
 interface CheckRow {
   component: string;
@@ -24,8 +24,8 @@ function today(): string {
   styleUrl: './admin-inspections.css',
 })
 export class AdminInspections implements OnInit {
-  /** "review": pendientes de revisión (formulario). "deliver": aprobadas por entregar. */
-  readonly tab = signal<'review' | 'deliver'>('review');
+  /** "review": pendientes de revisión (formulario). "deliver": aprobadas por entregar. "mail": correos con problemas. */
+  readonly tab = signal<'review' | 'deliver' | 'mail'>('review');
   readonly inspections = signal<Inspection[]>([]);
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
@@ -38,8 +38,11 @@ export class AdminInspections implements OnInit {
   readonly warnings = signal<{ inspectionId: string; messages: string[] } | null>(null);
   readonly retrying = signal(false);
   readonly deliveringId = signal<string | null>(null);
+  readonly resendingId = signal<string | null>(null);
+  readonly cancellingId = signal<string | null>(null);
 
   readonly gradeLabel = gradeLabel;
+  readonly notificationLabel = notificationLabel;
 
   readonly selected = computed(() => this.inspections().find((i) => i.id === this.selectedId()) ?? null);
 
@@ -78,7 +81,9 @@ export class AdminInspections implements OnInit {
   load(): void {
     this.loading.set(true);
     this.error.set(null);
-    const request = this.tab() === 'deliver' ? this.api.listToDeliver() : this.api.listOpen();
+    const tab = this.tab();
+    const request =
+      tab === 'deliver' ? this.api.listToDeliver() : tab === 'mail' ? this.api.listNotifications() : this.api.listOpen();
     request.subscribe({
       next: (inspections) => {
         this.inspections.set(inspections);
@@ -89,16 +94,18 @@ export class AdminInspections implements OnInit {
       },
       error: () => {
         this.error.set(
-          this.tab() === 'deliver'
+          tab === 'deliver'
             ? 'No se pudo cargar la lista de piezas por entregar.'
-            : 'No se pudo cargar la bandeja de inspecciones.',
+            : tab === 'mail'
+              ? 'No se pudo cargar la lista de correos.'
+              : 'No se pudo cargar la bandeja de inspecciones.',
         );
         this.loading.set(false);
       },
     });
   }
 
-  setTab(tab: 'review' | 'deliver'): void {
+  setTab(tab: 'review' | 'deliver' | 'mail'): void {
     if (this.tab() === tab) return;
     this.tab.set(tab);
     this.selectedId.set(null);
@@ -124,8 +131,58 @@ export class AdminInspections implements OnInit {
       },
       error: (err: HttpErrorResponse) => {
         this.deliveringId.set(null);
+        if (err.status === 409) this.load(); // refresca primero: load() limpia el error
         this.error.set(err.error?.message ?? 'No se pudo marcar la pieza como entregada.');
-        if (err.status === 409) this.load();
+      },
+    });
+  }
+
+  /** Pide reenviar los correos pendientes o fallidos; lo ya enviado no se repite. */
+  resend(inspection: Inspection): void {
+    if (this.resendingId()) return;
+    this.resendingId.set(inspection.id);
+    this.success.set(null);
+    this.error.set(null);
+    this.api.resendNotifications(inspection.id).subscribe({
+      next: () => {
+        this.resendingId.set(null);
+        this.inspections.set(this.inspections().filter((i) => i.id !== inspection.id));
+        this.success.set(
+          'Se pidió reenviar los correos. Si el problema sigue, la pieza volverá a aparecer en esta lista en unos minutos.',
+        );
+      },
+      error: (err: HttpErrorResponse) => {
+        this.resendingId.set(null);
+        this.error.set(err.error?.message ?? 'No se pudo pedir el reenvío de los correos.');
+      },
+    });
+  }
+
+  /**
+   * Cancela la compra de una pieza (p. ej. cuando no se puede avisar al comprador): se reembolsa y la publicación vuelve
+   * al catálogo. Pide confirmación porque devuelve el dinero y no se puede deshacer.
+   */
+  cancelPurchase(inspection: Inspection): void {
+    if (this.cancellingId()) return;
+    const title = inspection.listing?.title ?? inspection.description ?? 'esta pieza';
+    if (!confirm(`¿Cancelar la compra de "${title}"? Se devolverá el dinero al comprador y la pieza volverá al catálogo.`)) {
+      return;
+    }
+    this.cancellingId.set(inspection.id);
+    this.success.set(null);
+    this.warnings.set(null);
+    this.error.set(null);
+    this.api.cancel(inspection.id).subscribe({
+      next: (result) => {
+        this.cancellingId.set(null);
+        this.inspections.set(this.inspections().filter((i) => i.id !== inspection.id));
+        this.success.set('Compra cancelada: se devolvió el dinero al comprador y la pieza vuelve al catálogo.');
+        this.showWarnings(inspection.id, result.warnings);
+      },
+      error: (err: HttpErrorResponse) => {
+        this.cancellingId.set(null);
+        if (err.status === 409) this.load(); // refresca primero: load() limpia el error
+        this.error.set(err.error?.message ?? 'No se pudo cancelar la compra.');
       },
     });
   }

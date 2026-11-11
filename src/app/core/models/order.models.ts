@@ -1,7 +1,8 @@
 export type PaymentStatus = 'PENDING' | 'HOLD_ESCROW' | 'RELEASED_TO_SELLER' | 'REFUNDED';
 
 /** Estado de la revisión técnica de la pieza en el taller. */
-export type InspectionStatus = 'PENDING' | 'IN_REVIEW' | 'PASSED' | 'FAILED';
+/** CANCELLED: el taller canceló la compra (se reembolsó y la pieza volvió al catálogo). */
+export type InspectionStatus = 'PENDING' | 'IN_REVIEW' | 'PASSED' | 'FAILED' | 'CANCELLED';
 
 export interface OrderItemInspection {
   status: InspectionStatus;

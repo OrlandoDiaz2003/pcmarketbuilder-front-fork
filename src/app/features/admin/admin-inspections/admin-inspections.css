@@ -418,3 +418,91 @@
     grid-column: 1 / -1;
   }
 }
+
+/* ---- Correos ---- */
+.mail-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) max-content;
+  gap: 0.9rem;
+  align-items: center;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 0.8rem;
+}
+
+.mail-item .card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.mail-item .meta {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.mail-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem 0.6rem;
+  margin-top: 0.15rem;
+}
+
+.mail-chip {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  background: var(--c-f1f5f9);
+  color: var(--c-475569);
+}
+
+.mail-chip[data-status='SENT'] {
+  background: var(--c-dcfce7);
+  color: var(--c-15803d);
+}
+
+.mail-chip[data-status='PENDING'] {
+  background: var(--c-fef9c3);
+  color: var(--c-854d0e);
+}
+
+.mail-chip[data-status='NOT_SENT'],
+.mail-chip[data-status='FAILED'] {
+  background: var(--c-fee2e2);
+  color: var(--c-b91c1c);
+}
+
+.mail-error {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 560px) {
+  .mail-item {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.mail-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* "Por entregar": entregar y cancelar, uno bajo el otro */
+.deliver-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+@media (max-width: 560px) {
+  .deliver-actions {
+    grid-column: 1 / -1;
+  }
+}

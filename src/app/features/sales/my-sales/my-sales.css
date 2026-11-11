@@ -99,7 +99,8 @@ a.title:hover {
   color: var(--c-1d4ed8);
 }
 
-.stage[data-stage='REJECTED'] {
+.stage[data-stage='REJECTED'],
+.stage[data-stage='CANCELLED'] {
   background: var(--c-fee2e2);
   color: var(--c-b91c1c);
 }

@@ -1,7 +1,7 @@
 import { PublicationStatus } from './catalog.models';
 
 /** Etapa de una venta vista por el vendedor. */
-export type SaleStage = 'PAID' | 'IN_REVIEW' | 'APPROVED' | 'DELIVERED' | 'REJECTED';
+export type SaleStage = 'PAID' | 'IN_REVIEW' | 'APPROVED' | 'DELIVERED' | 'REJECTED' | 'CANCELLED';
 
 /** Una venta del usuario. Sin datos privados del comprador: solo su nombre de usuario público. */
 export interface Sale {

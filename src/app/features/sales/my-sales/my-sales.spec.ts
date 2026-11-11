@@ -43,6 +43,8 @@ describe('MySales', () => {
     expect(component.stepState('APPROVED', 'IN_REVIEW')).toBe('pending');
     expect(component.stepState('DELIVERED', 'DELIVERED')).toBe('done');
     expect(component.stepState('IN_REVIEW', 'REJECTED')).toBe('pending');
+    expect(component.stepState('PAID', 'CANCELLED')).toBe('done');
+    expect(component.stepState('IN_REVIEW', 'CANCELLED')).toBe('pending');
   });
 
   it('ofrece volver a ver la publicación solo si fue rechazada y está activa otra vez', () => {
@@ -50,5 +52,6 @@ describe('MySales', () => {
     expect(component.backInCatalog({ ...base, stage: 'REJECTED', publicationStatus: 'ACTIVE' } as Sale)).toBe(true);
     expect(component.backInCatalog({ ...base, stage: 'REJECTED', publicationStatus: 'IN_INSPECTION' } as Sale)).toBe(false);
     expect(component.backInCatalog({ ...base, stage: 'PAID', publicationStatus: 'ACTIVE' } as Sale)).toBe(false);
+    expect(component.backInCatalog({ ...base, stage: 'CANCELLED', publicationStatus: 'ACTIVE' } as Sale)).toBe(true);
   });
 });

@@ -45,7 +45,7 @@
           <span class="stage" [attr.data-stage]="sale.stage">{{ stageLabel(sale.stage) }}</span>
         </div>
 
-        @if (sale.stage === 'REJECTED') {
+        @if (sale.stage === 'REJECTED' || sale.stage === 'CANCELLED') {
           <ol class="timeline rejected" aria-label="Estado de la venta">
             <li class="done">
               <span class="dot"></span>
@@ -54,7 +54,7 @@
             </li>
             <li class="rejected-step">
               <span class="dot"></span>
-              <span class="step-name">Rechazada</span>
+              <span class="step-name">{{ stageLabel(sale.stage) }}</span>
               @if (sale.reviewedAt) {
                 <span class="step-date">{{ sale.reviewedAt | date: 'dd-MM-yyyy HH:mm' }}</span>
               }

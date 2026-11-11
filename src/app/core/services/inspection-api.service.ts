@@ -21,6 +21,21 @@ export class InspectionApiService {
     return this.http.get<Inspection[]>(`${this.baseUrl}/inspections`, { params: { scope: 'to-deliver' } });
   }
 
+  /** Inspecciones cerradas con correos pendientes, no enviados o fallidos. */
+  listNotifications(): Observable<Inspection[]> {
+    return this.http.get<Inspection[]>(`${this.baseUrl}/inspections`, { params: { scope: 'notifications' } });
+  }
+
+  /** Cancela la compra: se reembolsa y la pieza vuelve al catálogo. Lo que no se pueda aplicar llega en `warnings`. */
+  cancel(id: string): Observable<Inspection> {
+    return this.http.post<Inspection>(`${this.baseUrl}/inspections/${id}/cancel`, {});
+  }
+
+  /** Reenvía los correos pendientes o fallidos de una inspección cerrada (lo ya enviado no se repite). */
+  resendNotifications(id: string): Observable<Inspection> {
+    return this.http.post<Inspection>(`${this.baseUrl}/inspections/${id}/resend-notifications`, {});
+  }
+
   /** Marca la pieza aprobada como entregada: la venta se completa y la publicación pasa a "Vendida". */
   deliver(id: string): Observable<Inspection> {
     return this.http.post<Inspection>(`${this.baseUrl}/inspections/${id}/deliver`, {});

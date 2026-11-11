@@ -144,7 +144,8 @@
   color: var(--c-15803d);
 }
 
-.status[data-status='FAILED'] {
+.status[data-status='FAILED'],
+.status[data-status='CANCELLED'] {
   background: var(--c-fee2e2);
   color: var(--c-b91c1c);
 }
