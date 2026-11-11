@@ -16,12 +16,18 @@ function inspection(id: string): Inspection {
 }
 
 describe('AdminInspections', () => {
-  const api = { listOpen: vi.fn(), listToDeliver: vi.fn(), deliver: vi.fn(), sync: vi.fn(), complete: vi.fn() };
+  const api = {
+    listOpen: vi.fn(), listToDeliver: vi.fn(), listNotifications: vi.fn(), resendNotifications: vi.fn(),
+    deliver: vi.fn(), sync: vi.fn(), complete: vi.fn(), cancel: vi.fn(),
+  };
 
   function setup(items = [inspection('a'), inspection('b')]) {
     api.listOpen.mockReset().mockReturnValue(of(items));
     api.complete.mockReset();
     api.listToDeliver.mockReset().mockReturnValue(of([]));
+    api.listNotifications.mockReset().mockReturnValue(of([]));
+    api.resendNotifications.mockReset();
+    api.cancel.mockReset();
     api.deliver.mockReset();
     api.sync.mockReset();
     TestBed.configureTestingModule({
@@ -115,5 +121,91 @@ describe('AdminInspections', () => {
     expect(api.sync).toHaveBeenCalledWith('a');
     expect(component.warnings()).toBeNull();
     expect(component.success()).toContain('pasos pendientes');
+  });
+
+  it('la pestaña "Correos" lista las inspecciones con correos con problemas y muestra su estado', () => {
+    const component = setup();
+    const withProblem = {
+      ...inspection('m'),
+      status: 'PASSED' as const,
+      notifications: {
+        confirmation: { status: 'NOT_SENT' as const, error: 'El servidor de correo (SMTP) no esta configurado' },
+        report: { status: 'FAILED' as const, error: 'Fallo tras varios intentos' },
+      },
+    };
+    api.listNotifications.mockReturnValue(of([withProblem]));
+
+    component.setTab('mail');
+    expect(api.listNotifications).toHaveBeenCalled();
+    expect(component.inspections().map((i) => i.id)).toEqual(['m']);
+    expect(component.notificationLabel('NOT_SENT')).toBe('No enviado');
+    expect(component.notificationLabel('FAILED')).toBe('Falló');
+    expect(component.notificationLabel(null)).toBe('Sin dato');
+  });
+
+  it('"Reenviar correos" pide el reenvío y saca la inspección de la lista', () => {
+    const component = setup();
+    const item = inspection('r');
+    api.listNotifications.mockReturnValue(of([item]));
+    api.resendNotifications.mockReturnValue(of(item));
+    component.setTab('mail');
+
+    component.resend(item);
+    expect(api.resendNotifications).toHaveBeenCalledWith('r');
+    expect(component.inspections()).toEqual([]);
+    expect(component.success()).toContain('reenviar los correos');
+    expect(component.resendingId()).toBeNull();
+  });
+
+  it('si el reenvío falla muestra el error y deja la inspección en la lista', () => {
+    const component = setup();
+    const item = inspection('f');
+    api.listNotifications.mockReturnValue(of([item]));
+    api.resendNotifications.mockReturnValue(
+      throwError(() => new HttpErrorResponse({ status: 409, error: { message: 'La inspeccion aun no esta cerrada' } })),
+    );
+    component.setTab('mail');
+
+    component.resend(item);
+    expect(component.error()).toBe('La inspeccion aun no esta cerrada');
+    expect(component.inspections().length).toBe(1);
+    expect(component.resendingId()).toBeNull();
+  });
+
+  it('"Cancelar compra" pide confirmación, cancela, saca la pieza de la lista y muestra los avisos', () => {
+    const component = setup();
+    const item = { ...inspection('c'), status: 'PASSED' as const };
+    api.listNotifications.mockReturnValue(of([item]));
+    api.cancel.mockReturnValue(of({ ...item, warnings: ['No se pudo reembolsar la orden'] }));
+    component.setTab('mail');
+
+    vi.stubGlobal('confirm', () => false);
+    component.cancelPurchase(item);
+    expect(api.cancel).not.toHaveBeenCalled(); // sin confirmar no hace nada
+
+    vi.stubGlobal('confirm', () => true);
+    component.cancelPurchase(item);
+    expect(api.cancel).toHaveBeenCalledWith('c');
+    expect(component.inspections()).toEqual([]);
+    expect(component.success()).toContain('Compra cancelada');
+    expect(component.warnings()).toEqual({ inspectionId: 'c', messages: ['No se pudo reembolsar la orden'] });
+    vi.unstubAllGlobals();
+  });
+
+  it('si cancelar falla (409) muestra el error y refresca la lista', () => {
+    const component = setup();
+    const item = { ...inspection('d'), status: 'PASSED' as const };
+    api.listToDeliver.mockReturnValue(of([item]));
+    api.cancel.mockReturnValue(
+      throwError(() => new HttpErrorResponse({ status: 409, error: { message: 'La pieza ya fue entregada' } })),
+    );
+    component.setTab('deliver');
+    vi.stubGlobal('confirm', () => true);
+
+    component.cancelPurchase(item);
+    expect(component.error()).toBe('La pieza ya fue entregada');
+    expect(component.cancellingId()).toBeNull();
+    expect(api.listToDeliver).toHaveBeenCalledTimes(2); // carga + refresco
+    vi.unstubAllGlobals();
   });
 });

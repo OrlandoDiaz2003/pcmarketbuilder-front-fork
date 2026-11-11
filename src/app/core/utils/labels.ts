@@ -1,4 +1,5 @@
 import { Grade, PublicationStatus } from '../models/catalog.models';
+import { NotificationStatus } from '../models/inspection.models';
 import { InspectionStatus } from '../models/order.models';
 import { SaleStage } from '../models/sale.models';
 
@@ -21,6 +22,7 @@ const INSPECTION_LABELS: Record<InspectionStatus, string> = {
   IN_REVIEW: 'En revisión del taller',
   PASSED: 'Aprobada: será enviada',
   FAILED: 'Rechazada: no será enviada',
+  CANCELLED: 'Compra cancelada',
 };
 
 /**
@@ -41,6 +43,7 @@ const STAGE_LABELS: Record<SaleStage, string> = {
   APPROVED: 'Aprobada',
   DELIVERED: 'Entregada',
   REJECTED: 'Rechazada',
+  CANCELLED: 'Cancelada',
 };
 
 /** Pasos de la línea de tiempo de una venta (el rechazo es una rama aparte). */
@@ -63,6 +66,8 @@ export function stageHint(stage: SaleStage): string {
       return 'Entregada al comprador. ¡Venta completada!';
     case 'REJECTED':
       return 'No pasó la revisión: se devolvió el dinero al comprador y tu publicación volvió al catálogo.';
+    case 'CANCELLED':
+      return 'El taller canceló esta compra: se devolvió el dinero al comprador y tu publicación volvió al catálogo.';
   }
 }
 
@@ -86,4 +91,16 @@ export function memberSince(createdAt: string): string {
   const date = new Date(createdAt);
   const month = SPANISH_MONTHS[date.getMonth()];
   return `${month.charAt(0).toUpperCase()}${month.slice(1)} ${date.getFullYear()}`;
+}
+
+const NOTIFICATION_LABELS: Record<NotificationStatus, string> = {
+  PENDING: 'En curso',
+  SENT: 'Enviado',
+  NOT_SENT: 'No enviado',
+  FAILED: 'Falló',
+};
+
+/** Texto corto del estado de un correo para el panel del taller. */
+export function notificationLabel(status: NotificationStatus | null | undefined): string {
+  return status ? NOTIFICATION_LABELS[status] : 'Sin dato';
 }

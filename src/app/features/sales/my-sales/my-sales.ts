@@ -45,7 +45,7 @@ export class MySales implements OnInit {
 
   /** Estado de cada paso de la línea de tiempo: los anteriores a la etapa actual están hechos, y la entrega completa todo. */
   stepState(step: SaleStage, stage: SaleStage): StepState {
-    if (stage === 'REJECTED') return step === 'PAID' ? 'done' : 'pending';
+    if (stage === 'REJECTED' || stage === 'CANCELLED') return step === 'PAID' ? 'done' : 'pending';
     const current = SALE_STEPS.indexOf(stage);
     const index = SALE_STEPS.indexOf(step);
     if (stage === 'DELIVERED' || index < current) return 'done';
@@ -66,8 +66,10 @@ export class MySales implements OnInit {
     }
   }
 
-  /** La pieza rechazada volvió al catálogo: se ofrece ir a verla. */
+  /** La pieza rechazada o cancelada volvió al catálogo: se ofrece ir a verla. */
   backInCatalog(sale: Sale): boolean {
-    return sale.stage === 'REJECTED' && sale.publicationStatus === 'ACTIVE' && !!sale.publicationId;
+    return (
+      (sale.stage === 'REJECTED' || sale.stage === 'CANCELLED') && sale.publicationStatus === 'ACTIVE' && !!sale.publicationId
+    );
   }
 }

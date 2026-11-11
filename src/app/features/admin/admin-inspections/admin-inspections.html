@@ -12,6 +12,9 @@
   <button type="button" role="tab" [class.active]="tab() === 'deliver'" [attr.aria-selected]="tab() === 'deliver'" (click)="setTab('deliver')">
     Por entregar
   </button>
+  <button type="button" role="tab" [class.active]="tab() === 'mail'" [attr.aria-selected]="tab() === 'mail'" (click)="setTab('mail')">
+    Correos
+  </button>
 </div>
 
 @if (success()) {
@@ -45,6 +48,8 @@
 } @else if (inspections().length === 0) {
   @if (tab() === 'deliver') {
     <p class="muted">No hay piezas aprobadas por entregar.</p>
+  } @else if (tab() === 'mail') {
+    <p class="muted">No hay correos con problemas. Aquí aparecen los correos que no salieron o que quedaron pendientes.</p>
   } @else {
     <p class="muted">No hay piezas pendientes de revisión. Las compras nuevas aparecen aquí automáticamente.</p>
   }
@@ -64,15 +69,80 @@
           <span class="meta">Aprobada el {{ inspection.completedAt | date: 'dd-MM-yyyy HH:mm' }}</span>
           <span class="meta"><i class="fa-regular fa-envelope"></i> {{ inspection.buyerEmail ?? 'sin correo' }}</span>
         </span>
-        <button
+        <span class="deliver-actions">
+          <button
+            type="button"
+            class="btn btn-primary"
+            (click)="deliver(inspection)"
+            [disabled]="deliveringId() !== null"
+          >
+            <i class="fa-solid fa-box-open"></i>
+            {{ deliveringId() === inspection.id ? 'Guardando...' : 'Marcar como entregada' }}
+          </button>
+          <button
+            type="button"
+            class="btn btn-danger"
+            (click)="cancelPurchase(inspection)"
+            [disabled]="cancellingId() !== null"
+          >
+            <i class="fa-solid fa-ban"></i>
+            {{ cancellingId() === inspection.id ? 'Cancelando...' : 'Cancelar compra' }}
+          </button>
+        </span>
+      </li>
+    }
+  </ul>
+} @else if (tab() === 'mail') {
+  <ul class="deliver-list">
+    @for (inspection of inspections(); track inspection.id) {
+      <li class="mail-item">
+        <span class="card-info">
+          <strong>{{ inspection.listing?.title ?? inspection.description ?? 'Pieza' }}</strong>
+          <span class="meta">
+            {{ inspection.status === 'PASSED' ? 'Aprobada' : 'Rechazada' }} el {{ inspection.completedAt | date: 'dd-MM-yyyy HH:mm' }}
+          </span>
+          <span class="meta"><i class="fa-regular fa-envelope"></i> {{ inspection.buyerEmail ?? 'sin correo' }}</span>
+          @if (inspection.notifications; as n) {
+            <span class="mail-line">
+              <span class="mail-chip" [attr.data-status]="n.confirmation.status">
+                Confirmación: {{ notificationLabel(n.confirmation.status) }}
+              </span>
+              @if (n.confirmation.error) {
+                <span class="mail-error">{{ n.confirmation.error }}</span>
+              }
+            </span>
+            <span class="mail-line">
+              <span class="mail-chip" [attr.data-status]="n.report.status">
+                Informe PDF: {{ notificationLabel(n.report.status) }}
+              </span>
+              @if (n.report.error) {
+                <span class="mail-error">{{ n.report.error }}</span>
+              }
+            </span>
+          }
+        </span>
+<span class="mail-actions">
+          <button
+            type="button"
+            class="btn btn-primary"
+            (click)="resend(inspection)"
+            [disabled]="resendingId() !== null"
+          >
+            <i class="fa-solid fa-paper-plane"></i>
+            {{ resendingId() === inspection.id ? 'Enviando...' : 'Reenviar correos' }}
+          </button>
+          @if (inspection.status === 'PASSED') {
+            <button
           type="button"
-          class="btn btn-primary"
-          (click)="deliver(inspection)"
-          [disabled]="deliveringId() !== null"
+          class="btn btn-danger"
+          (click)="cancelPurchase(inspection)"
+          [disabled]="cancellingId() !== null"
         >
-          <i class="fa-solid fa-box-open"></i>
-          {{ deliveringId() === inspection.id ? 'Guardando...' : 'Marcar como entregada' }}
+          <i class="fa-solid fa-ban"></i>
+          {{ cancellingId() === inspection.id ? 'Cancelando...' : 'Cancelar compra' }}
         </button>
+          }
+        </span>
       </li>
     }
   </ul>
