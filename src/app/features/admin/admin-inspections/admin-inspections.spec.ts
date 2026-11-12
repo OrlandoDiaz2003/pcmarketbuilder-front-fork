@@ -18,7 +18,7 @@ function inspection(id: string): Inspection {
 describe('AdminInspections', () => {
   const api = {
     listOpen: vi.fn(), listToDeliver: vi.fn(), listNotifications: vi.fn(), resendNotifications: vi.fn(),
-    deliver: vi.fn(), sync: vi.fn(), complete: vi.fn(), cancel: vi.fn(),
+    deliver: vi.fn(), sync: vi.fn(), complete: vi.fn(), cancel: vi.fn(), dismissNotifications: vi.fn(),
   };
 
   function setup(items = [inspection('a'), inspection('b')]) {
@@ -28,6 +28,7 @@ describe('AdminInspections', () => {
     api.listNotifications.mockReset().mockReturnValue(of([]));
     api.resendNotifications.mockReset();
     api.cancel.mockReset();
+    api.dismissNotifications.mockReset();
     api.deliver.mockReset();
     api.sync.mockReset();
     TestBed.configureTestingModule({
@@ -207,5 +208,40 @@ describe('AdminInspections', () => {
     expect(component.cancellingId()).toBeNull();
     expect(api.listToDeliver).toHaveBeenCalledTimes(2); // carga + refresco
     vi.unstubAllGlobals();
+  });
+
+  it('una pieza ya entregada (o rechazada) no se puede cancelar', () => {
+    const component = setup();
+    const base = inspection('x');
+    expect(component.canCancel({ ...base, status: 'PASSED', deliveredAt: null })).toBe(true);
+    expect(component.canCancel({ ...base, status: 'PASSED', deliveredAt: '2026-11-12T10:00:00Z' })).toBe(false);
+    expect(component.canCancel({ ...base, status: 'FAILED', deliveredAt: null })).toBe(false);
+  });
+
+  it('"Descartar aviso" saca la inspección de la lista de correos y muestra el resultado', () => {
+    const component = setup();
+    const item = { ...inspection('z'), status: 'PASSED' as const };
+    api.listNotifications.mockReturnValue(of([item]));
+    api.dismissNotifications.mockReturnValue(of(item));
+    component.setTab('mail');
+
+    component.dismiss(item);
+    expect(api.dismissNotifications).toHaveBeenCalledWith('z');
+    expect(component.inspections()).toEqual([]);
+    expect(component.success()).toContain('Aviso descartado');
+    expect(component.dismissingId()).toBeNull();
+  });
+
+  it('si descartar falla muestra el error y deja la inspección en la lista', () => {
+    const component = setup();
+    const item = inspection('w');
+    api.listNotifications.mockReturnValue(of([item]));
+    api.dismissNotifications.mockReturnValue(
+      throwError(() => new HttpErrorResponse({ status: 409, error: { message: 'La inspeccion aun no esta cerrada' } })),
+    );
+    component.setTab('mail');
+    component.dismiss(item);
+    expect(component.error()).toBe('La inspeccion aun no esta cerrada');
+    expect(component.inspections().length).toBe(1);
   });
 });

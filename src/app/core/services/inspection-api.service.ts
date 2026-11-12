@@ -31,6 +31,11 @@ export class InspectionApiService {
     return this.http.post<Inspection>(`${this.baseUrl}/inspections/${id}/cancel`, {});
   }
 
+  /** Descarta el aviso de correos: la inspección sale de la pestaña Correos sin reenviar nada. */
+  dismissNotifications(id: string): Observable<Inspection> {
+    return this.http.post<Inspection>(`${this.baseUrl}/inspections/${id}/dismiss-notifications`, {});
+  }
+
   /** Reenvía los correos pendientes o fallidos de una inspección cerrada (lo ya enviado no se repite). */
   resendNotifications(id: string): Observable<Inspection> {
     return this.http.post<Inspection>(`${this.baseUrl}/inspections/${id}/resend-notifications`, {});

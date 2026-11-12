@@ -40,6 +40,7 @@ export class AdminInspections implements OnInit {
   readonly deliveringId = signal<string | null>(null);
   readonly resendingId = signal<string | null>(null);
   readonly cancellingId = signal<string | null>(null);
+  readonly dismissingId = signal<string | null>(null);
 
   readonly gradeLabel = gradeLabel;
   readonly notificationLabel = notificationLabel;
@@ -154,6 +155,30 @@ export class AdminInspections implements OnInit {
       error: (err: HttpErrorResponse) => {
         this.resendingId.set(null);
         this.error.set(err.error?.message ?? 'No se pudo pedir el reenvío de los correos.');
+      },
+    });
+  }
+
+  /** Una pieza ya entregada no se puede cancelar (el dinero ya llegó al vendedor); una cancelada o rechazada tampoco. */
+  canCancel(inspection: Inspection): boolean {
+    return inspection.status === 'PASSED' && !inspection.deliveredAt;
+  }
+
+  /** Saca la inspección de la lista de correos sin reenviar nada (p. ej. el comprador no tiene correo y reenviar no lo arregla). */
+  dismiss(inspection: Inspection): void {
+    if (this.dismissingId()) return;
+    this.dismissingId.set(inspection.id);
+    this.success.set(null);
+    this.error.set(null);
+    this.api.dismissNotifications(inspection.id).subscribe({
+      next: () => {
+        this.dismissingId.set(null);
+        this.inspections.set(this.inspections().filter((i) => i.id !== inspection.id));
+        this.success.set('Aviso descartado: la pieza ya no aparece en esta lista.');
+      },
+      error: (err: HttpErrorResponse) => {
+        this.dismissingId.set(null);
+        this.error.set(err.error?.message ?? 'No se pudo descartar el aviso.');
       },
     });
   }
