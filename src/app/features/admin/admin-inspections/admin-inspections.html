@@ -131,7 +131,7 @@
             <i class="fa-solid fa-paper-plane"></i>
             {{ resendingId() === inspection.id ? 'Enviando...' : 'Reenviar correos' }}
           </button>
-          @if (inspection.status === 'PASSED') {
+          @if (canCancel(inspection)) {
             <button
           type="button"
           class="btn btn-danger"
@@ -141,7 +141,19 @@
           <i class="fa-solid fa-ban"></i>
           {{ cancellingId() === inspection.id ? 'Cancelando...' : 'Cancelar compra' }}
         </button>
+          } @else if (inspection.deliveredAt) {
+            <span class="meta">Ya entregada: no se puede cancelar</span>
           }
+          <button
+            type="button"
+            class="btn btn-outline"
+            (click)="dismiss(inspection)"
+            [disabled]="dismissingId() !== null"
+            title="Sacar de esta lista sin reenviar nada"
+          >
+            <i class="fa-solid fa-eye-slash"></i>
+            {{ dismissingId() === inspection.id ? 'Descartando...' : 'Descartar aviso' }}
+          </button>
         </span>
       </li>
     }

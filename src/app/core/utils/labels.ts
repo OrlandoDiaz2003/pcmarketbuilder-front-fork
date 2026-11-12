@@ -104,3 +104,49 @@ const NOTIFICATION_LABELS: Record<NotificationStatus, string> = {
 export function notificationLabel(status: NotificationStatus | null | undefined): string {
   return status ? NOTIFICATION_LABELS[status] : 'Sin dato';
 }
+
+const CATEGORY_LABELS: Record<string, string> = {
+  Processors: 'Procesadores',
+  'Graphics Cards': 'Tarjetas gráficas',
+  RAM: 'Memoria RAM',
+  Motherboards: 'Placas madre',
+  Storage: 'Almacenamiento',
+  Cooling: 'Refrigeración',
+  Cases: 'Gabinetes',
+  'Power Supplies': 'Fuentes de poder',
+  SIN_CATEGORIA: 'Sin categoría',
+};
+
+/** Las subcategorías llegan en inglés en los datos; solo se traducen al mostrarlas. */
+export function categoryLabel(name: string | null | undefined): string {
+  if (!name) return 'Sin categoría';
+  return CATEGORY_LABELS[name] ?? name;
+}
+
+const EVENT_TYPE_LABELS: Record<string, string> = {
+  LISTING_VIEWED: 'Vistas de piezas',
+  SEARCH_PERFORMED: 'Búsquedas',
+  PUBLICATION_CREATED: 'Publicaciones nuevas',
+  ORDER_PAID: 'Compras pagadas',
+  INSPECTION_COMPLETED: 'Inspecciones cerradas',
+  ORDER_DELIVERED: 'Entregas',
+  ORDER_CANCELLED: 'Compras canceladas',
+  ORDER_REFUNDED: 'Reembolsos',
+};
+
+export function eventTypeLabel(type: string): string {
+  return EVENT_TYPE_LABELS[type] ?? type;
+}
+
+const AUDIT_LABELS: Record<string, string> = {
+  INSPECTION_APPROVED: 'Aprobó una pieza',
+  INSPECTION_REJECTED: 'Rechazó una pieza',
+  PIECE_DELIVERED: 'Entregó una pieza',
+  PURCHASE_CANCELLED: 'Canceló una compra',
+  ORDER_REFUNDED: 'Reembolsó una compra',
+  NOTIFICATIONS_RESENT: 'Reenvió correos',
+};
+
+export function auditLabel(type: string): string {
+  return AUDIT_LABELS[type] ?? type;
+}

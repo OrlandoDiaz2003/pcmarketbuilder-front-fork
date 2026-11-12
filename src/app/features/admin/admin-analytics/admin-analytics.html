@@ -1,0 +1,147 @@
+<div class="header">
+  <h1>Administración · Analítica</h1>
+  <div class="actions">
+    @if (updatedAt(); as at) {
+      <span class="updated">Actualizado {{ at | date: 'HH:mm:ss' }}</span>
+    }
+    <button
+      type="button"
+      class="btn btn-outline"
+      [class.on]="autoRefresh()"
+      (click)="toggleAutoRefresh()"
+      [attr.aria-pressed]="autoRefresh()"
+      [title]="autoRefresh() ? 'Se actualiza sola cada ' + refreshSeconds + ' s' : 'Actualización automática apagada'"
+    >
+      <i class="fa-solid" [class.fa-pause]="autoRefresh()" [class.fa-play]="!autoRefresh()"></i>
+      {{ autoRefresh() ? 'En vivo' : 'Pausado' }}
+    </button>
+    <button type="button" class="btn btn-outline" (click)="load()" [disabled]="loading()">
+      <i class="fa-solid fa-rotate"></i> Actualizar
+    </button>
+  </div>
+</div>
+
+@if (error()) {
+  <p class="error"><i class="fa-solid fa-triangle-exclamation"></i> {{ error() }}</p>
+} @else if (loading() && updatedAt() === null) {
+  <p class="muted">Cargando analítica...</p>
+} @else if (empty()) {
+  <p class="muted">Todavía no hay datos. Aparecen cuando se compran, revisan y miran piezas.</p>
+} @else {
+  <!-- Resumen -->
+  <section class="kpis" aria-label="Resumen">
+    <div class="kpi">
+      <span class="kpi-label">Compras pagadas</span>
+      <strong class="kpi-value">{{ orders() | number: '1.0-0' }}</strong>
+    </div>
+    <div class="kpi">
+      <span class="kpi-label">Ventas totales</span>
+      <strong class="kpi-value">{{ revenue() | number: '1.0-0' }} <small>CLP</small></strong>
+    </div>
+    <div class="kpi">
+      <span class="kpi-label">Piezas rechazadas</span>
+      <strong class="kpi-value">{{ rejectionRate() === null ? '—' : rejectionRate() + '%' }}</strong>
+      <span class="kpi-hint">{{ failed() }} de {{ passed() + failed() }} revisadas</span>
+    </div>
+    <div class="kpi">
+      <span class="kpi-label">Compras por cada 100 vistas</span>
+      <strong class="kpi-value">{{ conversion() === null ? '—' : (conversion() | number: '1.0-1') }}</strong>
+      <span class="kpi-hint">{{ views() | number: '1.0-0' }} vistas de piezas</span>
+    </div>
+  </section>
+
+  <div class="grid">
+    <!-- Ventas por categoría -->
+    <section class="panel">
+      <h2>Ventas por categoría</h2>
+      @if (categoryBars().length === 0) {
+        <p class="muted">Sin ventas todavía.</p>
+      } @else {
+        <ul class="bars">
+          @for (bar of categoryBars(); track bar.label) {
+            <li>
+              <span class="bar-label">{{ bar.label }}</span>
+              <span class="bar-track"><span class="bar-fill" [style.width.%]="bar.percent"></span></span>
+              <span class="bar-value">{{ bar.amount | number: '1.0-0' }} CLP <small>· {{ bar.count }}</small></span>
+            </li>
+          }
+        </ul>
+      }
+    </section>
+
+    <!-- Actividad -->
+    <section class="panel">
+      <h2>Actividad</h2>
+      <ul class="bars">
+        @for (bar of eventBars(); track bar.label) {
+          <li>
+            <span class="bar-label">{{ bar.label }}</span>
+            <span class="bar-track"><span class="bar-fill alt" [style.width.%]="bar.percent"></span></span>
+            <span class="bar-value">{{ bar.count | number: '1.0-0' }}</span>
+          </li>
+        }
+      </ul>
+    </section>
+
+    <!-- Piezas más vendidas -->
+    <section class="panel">
+      <h2>Piezas más vendidas</h2>
+      @if (productBars().length === 0) {
+        <p class="muted">Sin ventas todavía.</p>
+      } @else {
+        <ul class="bars">
+          @for (bar of productBars(); track bar.label) {
+            <li>
+              <span class="bar-label" [title]="bar.label">{{ bar.label }}</span>
+              <span class="bar-track"><span class="bar-fill" [style.width.%]="bar.percent"></span></span>
+              <span class="bar-value">{{ bar.amount | number: '1.0-0' }} CLP</span>
+            </li>
+          }
+        </ul>
+      }
+    </section>
+
+    <!-- Vendedores -->
+    <section class="panel">
+      <h2>Vendedores con más ventas</h2>
+      @if (sellerBars().length === 0) {
+        <p class="muted">Sin ventas todavía.</p>
+      } @else {
+        <ul class="bars">
+          @for (bar of sellerBars(); track bar.label) {
+            <li>
+              <span class="bar-label" [title]="bar.label">{{ bar.label }}</span>
+              <span class="bar-track"><span class="bar-fill" [style.width.%]="bar.percent"></span></span>
+              <span class="bar-value">{{ bar.amount | number: '1.0-0' }} CLP <small>· {{ bar.count }}</small></span>
+            </li>
+          }
+        </ul>
+      }
+    </section>
+  </div>
+
+  <!-- Auditoría -->
+  <section class="panel audit">
+    <h2>Auditoría · últimas acciones</h2>
+    @if (audit().length === 0) {
+      <p class="muted">Todavía no hay acciones registradas.</p>
+    } @else {
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Cuándo</th><th>Quién</th><th>Acción</th></tr>
+          </thead>
+          <tbody>
+            @for (entry of audit(); track entry.eventId) {
+              <tr>
+                <td class="nowrap">{{ entry.occurredAt | date: 'dd-MM-yyyy HH:mm' }}</td>
+                <td>{{ actorOf(entry) }}</td>
+                <td>{{ auditLabel(entry.eventType) }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+}

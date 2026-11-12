@@ -52,4 +52,10 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/admin/admin-inspections/admin-inspections').then((m) => m.AdminInspections),
   },
+  {
+    path: 'admin/analytics',
+    canActivate: [MsalGuard, adminGuard],
+    loadComponent: () =>
+      import('./features/admin/admin-analytics/admin-analytics').then((m) => m.AdminAnalytics),
+  },
 ];

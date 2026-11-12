@@ -82,7 +82,7 @@ export function MSALInterceptorConfigFactory(): MsalInterceptorConfiguration {
   ]);
 
   // Compras, bandeja del taller e informes PDF: siempre con identidad, en todos los métodos.
-  for (const path of ['orders', 'inspections', 'reports', 'sales']) {
+  for (const path of ['orders', 'inspections', 'reports', 'sales', 'insights']) {
     protectedResourceMap.set(`${environment.bffBaseUrl}/${path}*`, [bffScope]);
   }
 
