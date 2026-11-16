@@ -17,4 +17,10 @@ describe('stripLogoutState', () => {
     expect(window.location.hash).toBe('#code=abc&state=xyz');
     expect(window.location.search).toBe('');
   });
+
+  it('conserva ?code=&state= de la respuesta de Cognito: la librería OIDC los necesita para completar el login', () => {
+    window.history.replaceState(null, '', '/?code=abc123&state=xyz');
+    stripLogoutState();
+    expect(window.location.search).toBe('?code=abc123&state=xyz');
+  });
 });
