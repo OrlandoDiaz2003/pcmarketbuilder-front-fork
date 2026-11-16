@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
-import { MsalGuard } from '@azure/msal-angular';
 import { adminGuard } from './core/auth/admin.guard';
+import { authGuard } from './core/auth/auth.guard';
 
 export const routes: Routes = [
   {
@@ -14,7 +14,7 @@ export const routes: Routes = [
   },
   {
     path: 'profile',
-    canActivate: [MsalGuard],
+    canActivate: [authGuard],
     loadComponent: () => import('./features/profile/profile-page/profile-page').then((m) => m.ProfilePage),
   },
   {
@@ -23,13 +23,17 @@ export const routes: Routes = [
   },
   {
     path: 'orders',
-    canActivate: [MsalGuard],
+    canActivate: [authGuard],
     loadComponent: () => import('./features/orders/my-orders/my-orders').then((m) => m.MyOrders),
   },
   {
     path: 'sales',
-    canActivate: [MsalGuard],
+    canActivate: [authGuard],
     loadComponent: () => import('./features/sales/my-sales/my-sales').then((m) => m.MySales),
+  },
+  {
+    path: 'login',
+    loadComponent: () => import('./features/auth/login/login').then((m) => m.Login),
   },
   {
     path: 'register',
@@ -37,24 +41,24 @@ export const routes: Routes = [
   },
   {
     path: 'sell/new',
-    canActivate: [MsalGuard],
+    canActivate: [authGuard],
     loadComponent: () => import('./features/sell/create-listing/create-listing').then((m) => m.CreateListing),
   },
   {
     path: 'admin/publications',
-    canActivate: [MsalGuard, adminGuard],
+    canActivate: [authGuard, adminGuard],
     loadComponent: () =>
       import('./features/admin/admin-publications/admin-publications').then((m) => m.AdminPublications),
   },
   {
     path: 'admin/inspections',
-    canActivate: [MsalGuard, adminGuard],
+    canActivate: [authGuard, adminGuard],
     loadComponent: () =>
       import('./features/admin/admin-inspections/admin-inspections').then((m) => m.AdminInspections),
   },
   {
     path: 'admin/analytics',
-    canActivate: [MsalGuard, adminGuard],
+    canActivate: [authGuard, adminGuard],
     loadComponent: () =>
       import('./features/admin/admin-analytics/admin-analytics').then((m) => m.AdminAnalytics),
   },

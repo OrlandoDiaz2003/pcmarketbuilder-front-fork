@@ -1,4 +1,5 @@
 import { Injectable, Injector, OnDestroy, signal } from '@angular/core';
+import { Router } from '@angular/router';
 import { MsalBroadcastService, MsalService } from '@azure/msal-angular';
 import { AccountInfo, AuthenticationResult, EventMessage, EventType, InteractionStatus } from '@azure/msal-browser';
 import { Observable, Subject } from 'rxjs';
@@ -6,6 +7,7 @@ import { filter, takeUntil } from 'rxjs/operators';
 import { UserRole } from '../models/user.models';
 import { environment } from '../../../environments/environment';
 import { UserApiService } from '../services/user-api.service';
+import { CognitoAuthService } from './cognito.service';
 import { bffScope, loginRequest } from './msal.factory';
 
 export interface EntraClaims {
@@ -173,16 +175,42 @@ export class AuthService implements OnDestroy {
     }
   }
 
+  /** Cognito se carga bajo demanda: así este servicio no exige la librería OIDC donde solo se usa Entra (tests). */
+  private get cognito(): CognitoAuthService | null {
+    try {
+      return this.injector.get(CognitoAuthService);
+    } catch {
+      return null;
+    }
+  }
+
+  /** true si la sesión activa es de Cognito (comprador/vendedor); si no, es la de Entra (administrador). */
+  get usesCognito(): boolean {
+    return this.cognito?.authenticated() === true;
+  }
+
   get isAuthenticated(): boolean {
-    return this.account() !== null;
+    return this.usesCognito || this.account() !== null;
   }
 
   get claims(): EntraClaims | null {
+    if (this.usesCognito) {
+      const user = this.cognito?.userData() ?? {};
+      const email = user['email'] as string | undefined;
+      // Para Cognito el "oid" es el sub del usuario: es el mismo id que el BFF manda como X-User-Id.
+      return {
+        oid: user['sub'] as string | undefined,
+        email,
+        preferred_username: email,
+        name: (user['name'] as string | undefined) ?? email,
+      };
+    }
     return (this.account()?.idTokenClaims as EntraClaims | undefined) ?? null;
   }
 
-  /** Rol de aplicación (app role) asignado en Entra ID. Usado por ms-user al sincronizar. */
+  /** Rol de aplicación. Cognito siempre es BUYER_SELLER; el de Entra sale de la claim `roles`. */
   get role(): UserRole {
+    if (this.usesCognito) return DEFAULT_ROLE;
     const roles = this.claims?.roles;
     const knownRole = (roles ?? []).find((r): r is UserRole =>
       (KNOWN_ROLES as string[]).includes(r),
@@ -203,26 +231,43 @@ export class AuthService implements OnDestroy {
    * `select_account` obliga a Microsoft a mostrar el selector de cuentas: sin él reutiliza en silencio la
    * sesión del último usuario y no hay forma de volver a entrar con la otra cuenta.
    */
+  /** Login del administrador (Entra ID). Los clientes entran con loginCognito(). */
   login(): void {
+    this.cognito?.clearLocal(); // una sola identidad activa: si había sesión de Cognito, se descarta
     this.startRedirect(() => this.msalService.loginRedirect({ ...loginRequest, prompt: 'select_account' }));
   }
 
-  /** Registro: usa la autoridad de alta (B2C) si el tenant la define; si no,
-   *  fuerza el flujo de creación de cuenta de Entra ID. Antes de llamarlo el
-   *  usuario debe aceptar los Términos y Condiciones (ver página /register). */
-  signUp(): void {
-    const authority = environment.msal.signUpAuthority || undefined;
-    this.startRedirect(() =>
-      this.msalService.loginRedirect({
-        scopes: ['openid', 'profile', 'email'],
-        ...(authority ? { authority } : {}),
-        extraQueryParameters: { prompt: 'create' },
-      }),
-    );
+  /** Login de compradores y vendedores: abre el login alojado de Cognito (que también permite crear la cuenta). */
+  loginCognito(): void {
+    const cognito = this.cognito;
+    if (!cognito) return;
+    this.redirecting.set(true);
+    cognito.login();
   }
 
-  /** Cierra solo la sesión de la cuenta activa (con logout_hint, para que Microsoft no pregunte cuál cerrar). */
+  /** Lleva a la pantalla donde se elige cómo entrar (cliente o administrador). */
+  goToLogin(): void {
+    void this.injector.get(Router).navigateByUrl('/login');
+  }
+
+  /** Registro: los clientes se crean en Cognito (el login alojado ofrece "Registrarse"). Antes de llamarlo el
+   *  usuario debe aceptar los Términos y Condiciones (ver página /register). */
+  signUp(): void {
+    this.loginCognito();
+  }
+
+  /** Hay un login de Entra volviendo de Microsoft (la respuesta llega en el hash de la URL). */
+  entraRedirectPending(): boolean {
+    if (typeof window === 'undefined') return false;
+    return /[#&]state=/.test(window.location.hash);
+  }
+
+  /** Cierra la sesión activa: la de Cognito, o la de Entra (con logout_hint, para que Microsoft no pregunte cuál cerrar). */
   logout(): void {
+    if (this.usesCognito) {
+      this.cognito?.logout();
+      return;
+    }
     const account = this.msalService.instance.getActiveAccount() ?? this.account() ?? undefined;
     this.startRedirect(() =>
       this.msalService.logoutRedirect({ account, postLogoutRedirectUri: environment.msal.postLogoutRedirectUri }),

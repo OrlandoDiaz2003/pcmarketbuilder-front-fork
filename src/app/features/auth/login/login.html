@@ -1,0 +1,18 @@
+<div class="login-page">
+  <div class="login-card">
+    <h1>Iniciar sesión</h1>
+    <p class="subtitle">Elige cómo quieres entrar a PC Market Builder.</p>
+
+    <button type="button" class="btn btn-primary" [disabled]="auth.redirecting()" (click)="signInCustomer()">
+      <i class="fa-solid fa-user"></i> Ingresar como cliente
+    </button>
+    <p class="hint">Compradores y vendedores. Entras con tu correo electrónico.</p>
+
+    <button type="button" class="btn btn-outline" [disabled]="auth.redirecting()" (click)="signInAdmin()">
+      <i class="fa-brands fa-microsoft"></i> Soy administrador
+    </button>
+    <p class="hint">Personal del taller. Entras con tu cuenta de Microsoft.</p>
+
+    <p class="register">¿No tienes cuenta? <a routerLink="/register">Regístrate</a></p>
+  </div>
+</div>

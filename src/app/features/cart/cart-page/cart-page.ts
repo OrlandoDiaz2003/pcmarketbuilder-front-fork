@@ -47,7 +47,7 @@ export class CartPage {
     this.emailTouched.set(true);
     if (!this.emailValid || this.submitting() || this.cart.count() === 0) return;
     if (!this.auth.isAuthenticated) {
-      this.auth.login();
+      this.auth.goToLogin();
       return;
     }
 

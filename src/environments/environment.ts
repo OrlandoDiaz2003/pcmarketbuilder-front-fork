@@ -1,6 +1,16 @@
 export const environment = {
   production: false,
   bffBaseUrl: 'http://localhost:4000/api',
+  // Amazon Cognito (compradores y vendedores). Identificadores públicos, no son secretos.
+  // redirectUri / postLogoutRedirectUri deben estar registrados en el App Client (Páginas de inicio de sesión).
+  cognito: {
+    region: 'us-east-1',
+    userPoolId: 'us-east-1_nBO3iQNzO',
+    clientId: '1f6tqiu9d5sh2lq3vif390jgfa',
+    domain: 'https://pcb-auth-614788327678.auth.us-east-1.amazoncognito.com',
+    redirectUri: 'http://localhost:4200',
+    postLogoutRedirectUri: 'http://localhost:4200',
+  },
   msal: {
     // Azure Entra ID (Azure AD) App Registration — plataforma "Single-page application".
     // Reemplazar con los valores reales del tenant. Ver README para los pasos de alta.
