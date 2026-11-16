@@ -2,7 +2,7 @@
   <div class="register-card">
     <h1>Crear tu cuenta en PC Market Builder</h1>
     <p class="subtitle">
-      El registro se realiza con tu cuenta de Microsoft (Entra ID). Antes de continuar
+      El registro se realiza con tu correo electrónico (Amazon Cognito). Antes de continuar
       revisa y acepta los Términos y Condiciones del servicio.
     </p>
 
@@ -41,7 +41,7 @@
 
       <h2>3. Sobre tu cuenta</h2>
       <ul>
-        <li>Tu cuenta se vincula con tu identidad de Microsoft (Entra ID); creamos tu perfil de usuario automáticamente al registrarte.</li>
+        <li>Tu cuenta se vincula con tu correo electrónico (Amazon Cognito); creamos tu perfil de usuario automáticamente al registrarte.</li>
         <li>Eres responsable de que la información publicada sea veraz y cumpla la normativa aplicable.</li>
         <li>La plataforma puede suspender cuentas que infrinjan estos términos o las políticas de operación.</li>
       </ul>
@@ -50,13 +50,13 @@
       <p class="accept-note">
         Haciendo clic en "Aceptar y registrarte" confirmas que has leído, entendido y
         aceptado estos Términos y Condiciones, y que continuarás con la creación de tu
-        cuenta a través de Microsoft.
+        cuenta con tu correo electrónico.
       </p>
     </section>
 
     <div class="actions">
       @if (accepted) {
-        <p class="redirecting">Redirigiendo a Microsoft para crear tu cuenta…</p>
+        <p class="redirecting">Redirigiendo para crear tu cuenta…</p>
       } @else {
         <button type="button" class="btn btn-primary" (click)="accept()">Aceptar y registrarte</button>
       }

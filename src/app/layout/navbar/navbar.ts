@@ -18,7 +18,7 @@ export class Navbar {
   ) {}
 
   login(): void {
-    this.auth.login();
+    this.auth.goToLogin();
   }
 
   logout(): void {

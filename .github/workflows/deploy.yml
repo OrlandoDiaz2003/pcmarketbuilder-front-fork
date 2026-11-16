@@ -45,6 +45,9 @@ jobs:
           # Deben coincidir con las Redirect URIs registradas en Entra ID.
           MSAL_REDIRECT_URI: ${{ secrets.MSAL_REDIRECT_URI }}
           MSAL_POST_LOGOUT_REDIRECT_URI: ${{ secrets.MSAL_POST_LOGOUT_REDIRECT_URI }}
+          # Deben coincidir con las URL registradas en el App Client de Cognito.
+          COGNITO_REDIRECT_URI: ${{ secrets.COGNITO_REDIRECT_URI }}
+          COGNITO_POST_LOGOUT_REDIRECT_URI: ${{ secrets.COGNITO_POST_LOGOUT_REDIRECT_URI }}
         run: npm run setenv
 
       - name: Build

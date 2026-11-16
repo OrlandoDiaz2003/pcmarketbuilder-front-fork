@@ -10,12 +10,12 @@ import { CartPage } from './cart-page';
 
 describe('CartPage checkout', () => {
   const orders = { checkout: vi.fn() };
-  const auth = { isAuthenticated: true, login: vi.fn() };
+  const auth = { isAuthenticated: true, goToLogin: vi.fn() };
 
   function setup() {
     localStorage.clear();
     orders.checkout.mockReset();
-    auth.login.mockReset();
+    auth.goToLogin.mockReset();
     auth.isAuthenticated = true;
     TestBed.configureTestingModule({
       imports: [CartPage],
@@ -46,7 +46,7 @@ describe('CartPage checkout', () => {
     auth.isAuthenticated = false;
     component.email = 'yo@correo.cl';
     component.checkout();
-    expect(auth.login).toHaveBeenCalled();
+    expect(auth.goToLogin).toHaveBeenCalled();
     expect(orders.checkout).not.toHaveBeenCalled();
   });
 
